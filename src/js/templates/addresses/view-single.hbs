@@ -1,0 +1,52 @@
+<ol class="breadcrumb">
+    <li><a href="#">Home</a></li>
+    <li><a href="#addresses">Addresses</a></li>
+    <li class="active">Create Address</li>
+</ol>
+
+<form id="address-form" class="ink-form">
+    <input type="hidden" name="create" value="{{create}}" />
+    <div class="column-group gutters">
+        <label for="id" class="all-10">City ID</label>
+        <div class="control all-90">
+            <b>{{id}}</b>
+        </div>
+    </div>
+    <div class="column-group gutters">
+        <label for="title" class="all-10">Title</label>
+        <div class="control all-90">
+            <input type="text" name="title" id="title" class="all-50" value="{{title}}" placeholder="e.g. Dog Bar"/>
+        </div>
+    </div>
+    <div class="column-group gutters">
+        <label for="street" class="all-10">No. & Street</label>
+        <div class="control all-90">
+            <input type="text" name="street" id="street" class="all-50" value="{{street}}" placeholder="e.g. 33 Yellow Street" />
+        </div>
+    </div>
+    <div class="column-group gutters">
+        <label for="zip" class="all-10">Zip</label>
+        <div class="control all-90">
+            <input type="text" name="zip" class="all-50" id="zip" value="{{zip}}">
+        </div>
+    </div>
+    <div class="column-group gutters">
+        <label for="city" class="all-10">City / Neighborhood</label>
+        <div class="control all-90">
+            <input type="text" name="city" id="city" class="all-50" value="{{city}}" placeholder="e.g. West LA" />
+        </div>
+    </div>
+    <div class="column-group gutters">
+        <label for="parent_city_id" class="all-10">Parent City</label>
+        <div class="control all-90">
+            <select name="parent_city_id" id="parent_city_id"></select>
+        </div>
+    </div>
+
+    <hr/>
+    <span class="ink-button orange right-space form-save">Save</span>
+    <span class="ink-button white form-cancel">Cancel</span>
+</form>
+
+
+

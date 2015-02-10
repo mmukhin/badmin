@@ -1,0 +1,118 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node', '/usr/local/bin/npm', 'install' ]
+2 info using npm@1.4.28
+3 info using node@v0.10.33
+4 verbose readDependencies using package.json deps
+5 verbose install where, deps [ '/Users/MM/Documents/Code/badmin',
+5 verbose install   [ 'bootflat',
+5 verbose install     'backbone',
+5 verbose install     'jquery',
+5 verbose install     'jquery-ui',
+5 verbose install     'backbone.marionette',
+5 verbose install     'backbone-fixtures',
+5 verbose install     'browser-sync',
+5 verbose install     'browserify',
+5 verbose install     'browserify-shim',
+5 verbose install     'coffeeify',
+5 verbose install     'blueimp-file-upload',
+5 verbose install     'dropzone',
+5 verbose install     'gulp',
+5 verbose install     'gulp-changed',
+5 verbose install     'gulp-concat',
+5 verbose install     'gulp-imagemin',
+5 verbose install     'gulp-notify',
+5 verbose install     'gulp-replace',
+5 verbose install     'gulp-ruby-sass',
+5 verbose install     'gulp-sourcemaps',
+5 verbose install     'gulp-util',
+5 verbose install     'handlebars',
+5 verbose install     'hbsfy',
+5 verbose install     'minimist',
+5 verbose install     'pretty-hrtime',
+5 verbose install     'require-dir',
+5 verbose install     'vinyl-source-stream',
+5 verbose install     'watchify' ] ]
+6 info preinstall mukhin@
+7 warn package.json sass@0.5.0 No repository field.
+8 verbose readDependencies using package.json deps
+9 verbose already installed skipping bootflat@~2.0 /Users/MM/Documents/Code/badmin
+10 verbose already installed skipping backbone@~1.1.2 /Users/MM/Documents/Code/badmin
+11 verbose already installed skipping jquery@~2.1.0 /Users/MM/Documents/Code/badmin
+12 verbose already installed skipping jquery-ui@~1.10.5 /Users/MM/Documents/Code/badmin
+13 verbose already installed skipping backbone.marionette@~2.2.0 /Users/MM/Documents/Code/badmin
+14 verbose cache add [ 'backbone-fixtures@https://github.com/huffingtonpost/backbone-fixtures/archive/master.tar',
+14 verbose cache add   null ]
+15 verbose cache add name=undefined spec="backbone-fixtures@https://github.com/huffingtonpost/backbone-fixtures/archive/master.tar" args=["backbone-fixtures@https://github.com/huffingtonpost/backbone-fixtures/archive/master.tar",null]
+16 verbose parsed url { protocol: null,
+16 verbose parsed url   slashes: null,
+16 verbose parsed url   auth: null,
+16 verbose parsed url   host: null,
+16 verbose parsed url   port: null,
+16 verbose parsed url   hostname: null,
+16 verbose parsed url   hash: null,
+16 verbose parsed url   search: null,
+16 verbose parsed url   query: null,
+16 verbose parsed url   pathname: 'backbone-fixtures@https://github.com/huffingtonpost/backbone-fixtures/archive/master.tar',
+16 verbose parsed url   path: 'backbone-fixtures@https://github.com/huffingtonpost/backbone-fixtures/archive/master.tar',
+16 verbose parsed url   href: 'backbone-fixtures@https://github.com/huffingtonpost/backbone-fixtures/archive/master.tar' }
+17 verbose already installed skipping browser-sync@~1.3.6 /Users/MM/Documents/Code/badmin
+18 verbose already installed skipping browserify@~5.10.1 /Users/MM/Documents/Code/badmin
+19 verbose already installed skipping browserify-shim@~3.7.0 /Users/MM/Documents/Code/badmin
+20 verbose cache add name="backbone-fixtures" spec="https://github.com/huffingtonpost/backbone-fixtures/archive/master.tar" args=["backbone-fixtures","https://github.com/huffingtonpost/backbone-fixtures/archive/master.tar"]
+21 verbose parsed url { protocol: 'https:',
+21 verbose parsed url   slashes: true,
+21 verbose parsed url   auth: null,
+21 verbose parsed url   host: 'github.com',
+21 verbose parsed url   port: null,
+21 verbose parsed url   hostname: 'github.com',
+21 verbose parsed url   hash: null,
+21 verbose parsed url   search: null,
+21 verbose parsed url   query: null,
+21 verbose parsed url   pathname: '/huffingtonpost/backbone-fixtures/archive/master.tar',
+21 verbose parsed url   path: '/huffingtonpost/backbone-fixtures/archive/master.tar',
+21 verbose parsed url   href: 'https://github.com/huffingtonpost/backbone-fixtures/archive/master.tar' }
+22 verbose already installed skipping coffeeify@~0.7.0 /Users/MM/Documents/Code/badmin
+23 silly lockFile 693d79d1-bone-fixtures-archive-master-tar https://github.com/huffingtonpost/backbone-fixtures/archive/master.tar
+24 verbose lock https://github.com/huffingtonpost/backbone-fixtures/archive/master.tar /Users/MM/.npm/693d79d1-bone-fixtures-archive-master-tar.lock
+25 verbose already installed skipping blueimp-file-upload@~9.9.2 /Users/MM/Documents/Code/badmin
+26 verbose addRemoteTarball [ 'https://github.com/huffingtonpost/backbone-fixtures/archive/master.tar',
+26 verbose addRemoteTarball   null ]
+27 verbose already installed skipping dropzone@~3.12.0 /Users/MM/Documents/Code/badmin
+28 info retry fetch attempt 1 at 16:20:29
+29 verbose fetch to= /var/folders/77/b8sc7lhd33jc61hj15zrm0wm0000gn/T/npm-7400-6YPm_egA/github.com/huffingtonpost/backbone-fixtures/archive/master.tar
+30 verbose already installed skipping gulp@^3.8.7 /Users/MM/Documents/Code/badmin
+31 verbose already installed skipping gulp-changed@^0.4.1 /Users/MM/Documents/Code/badmin
+32 http GET https://github.com/huffingtonpost/backbone-fixtures/archive/master.tar
+33 verbose already installed skipping gulp-concat@^2.4.1 /Users/MM/Documents/Code/badmin
+34 verbose already installed skipping gulp-imagemin@^0.6.2 /Users/MM/Documents/Code/badmin
+35 verbose already installed skipping gulp-notify@^1.4.2 /Users/MM/Documents/Code/badmin
+36 verbose already installed skipping gulp-replace@~0.5.2 /Users/MM/Documents/Code/badmin
+37 verbose already installed skipping gulp-ruby-sass@~1.0.0-alpha /Users/MM/Documents/Code/badmin
+38 verbose already installed skipping gulp-sourcemaps@^1.3.0 /Users/MM/Documents/Code/badmin
+39 verbose already installed skipping gulp-util@^3.0.0 /Users/MM/Documents/Code/badmin
+40 verbose already installed skipping handlebars@^1.3.0 /Users/MM/Documents/Code/badmin
+41 verbose already installed skipping hbsfy@~2.0.0 /Users/MM/Documents/Code/badmin
+42 verbose already installed skipping minimist@~1.1.0 /Users/MM/Documents/Code/badmin
+43 verbose already installed skipping pretty-hrtime@~0.2.1 /Users/MM/Documents/Code/badmin
+44 verbose already installed skipping require-dir@^0.1.0 /Users/MM/Documents/Code/badmin
+45 verbose already installed skipping vinyl-source-stream@~0.1.1 /Users/MM/Documents/Code/badmin
+46 verbose already installed skipping watchify@~1.0.2 /Users/MM/Documents/Code/badmin
+47 http 404 https://github.com/huffingtonpost/backbone-fixtures/archive/master.tar
+48 error fetch failed https://github.com/huffingtonpost/backbone-fixtures/archive/master.tar
+49 silly lockFile 693d79d1-bone-fixtures-archive-master-tar https://github.com/huffingtonpost/backbone-fixtures/archive/master.tar
+50 silly lockFile 693d79d1-bone-fixtures-archive-master-tar https://github.com/huffingtonpost/backbone-fixtures/archive/master.tar
+51 error Error: 404 Not Found
+51 error     at WriteStream.<anonymous> (/usr/local/lib/node_modules/npm/lib/utils/fetch.js:58:12)
+51 error     at WriteStream.emit (events.js:117:20)
+51 error     at evalmachine.<anonymous>:1609:14
+51 error     at /usr/local/lib/node_modules/npm/node_modules/graceful-fs/graceful-fs.js:102:5
+51 error     at Object.oncomplete (evalmachine.<anonymous>:107:15)
+52 error If you need help, you may report this *entire* log,
+52 error including the npm and node versions, at:
+52 error     <http://github.com/npm/npm/issues>
+53 error System Darwin 14.0.0
+54 error command "node" "/usr/local/bin/npm" "install"
+55 error cwd /Users/MM/Documents/Code/badmin
+56 error node -v v0.10.33
+57 error npm -v 1.4.28
+58 verbose exit [ 1, true ]
