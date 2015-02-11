@@ -1,0 +1,8 @@
+.idea
+/build
+/node_modules
+
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
