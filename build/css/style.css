@@ -6586,3 +6586,9 @@ body {
 #nav .logged-in-user-image {
   margin: 0 5px 0 0;
   height: 18px; }
+
+#notifier {
+  position: fixed;
+  width: 100%;
+  top: 70px;
+  z-index: 100; }

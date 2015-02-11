@@ -3,7 +3,6 @@ var _ = require('underscore');
 var Backbone = require('backbone');
 Backbone.$ = $;
 var Marionette = require('backbone.marionette');
-var NotifierModel = require('./models/notifier-model.js');
 var LoginView = require('./views/login/view.js');
 require('./plugins/backbone.cors.js');
 require('./plugins/backbone.fixtures.js');
@@ -22,7 +21,7 @@ $(document).ready( function(){
         //isMobileBrowser: md.mobile()
     };
 
-    var NotifierView = require('./views/components/notifier.js');
+    var NotifierView = require('./views/components/notifier/view-all.js');
     TheApp.app.notifier = new NotifierView();
 
     TheApp.app.addInitializer(function () {

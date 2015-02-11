@@ -4,7 +4,6 @@ var _ = require('underscore');
 var Backbone = require('backbone');
 Backbone.$ = $;
 var Marionette = require('backbone.marionette');
-var NotifierModel = require('./models/notifier-model.js');
 var LoginView = require('./views/login/view.js');
 require('./plugins/backbone.cors.js');
 require('./plugins/backbone.fixtures.js');
@@ -23,7 +22,7 @@ $(document).ready( function(){
         //isMobileBrowser: md.mobile()
     };
 
-    var NotifierView = require('./views/components/notifier.js');
+    var NotifierView = require('./views/components/notifier/view-all.js');
     TheApp.app.notifier = new NotifierView();
 
     TheApp.app.addInitializer(function () {
@@ -65,7 +64,7 @@ $(document).ready( function(){
     TheApp.app.start();
 
 });
-},{"../../config.js":"/Users/MM/Documents/Code/badmin/config.js","./models/notifier-model.js":"/Users/MM/Documents/Code/badmin/src/js/models/notifier-model.js","./models/user.js":"/Users/MM/Documents/Code/badmin/src/js/models/user.js","./plugins/backbone.cors.js":"/Users/MM/Documents/Code/badmin/src/js/plugins/backbone.cors.js","./plugins/backbone.fixtures.js":"/Users/MM/Documents/Code/badmin/src/js/plugins/backbone.fixtures.js","./router.js":"/Users/MM/Documents/Code/badmin/src/js/router.js","./vendor/bootstrap.js":"/Users/MM/Documents/Code/badmin/src/js/vendor/bootstrap.js","./views/components/notifier.js":"/Users/MM/Documents/Code/badmin/src/js/views/components/notifier.js","./views/login/view.js":"/Users/MM/Documents/Code/badmin/src/js/views/login/view.js","./views/view-manager.js":"/Users/MM/Documents/Code/badmin/src/js/views/view-manager.js","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/backbone/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/config.js":[function(require,module,exports){
+},{"../../config.js":"/Users/MM/Documents/Code/badmin/config.js","./models/user.js":"/Users/MM/Documents/Code/badmin/src/js/models/user.js","./plugins/backbone.cors.js":"/Users/MM/Documents/Code/badmin/src/js/plugins/backbone.cors.js","./plugins/backbone.fixtures.js":"/Users/MM/Documents/Code/badmin/src/js/plugins/backbone.fixtures.js","./router.js":"/Users/MM/Documents/Code/badmin/src/js/router.js","./vendor/bootstrap.js":"/Users/MM/Documents/Code/badmin/src/js/vendor/bootstrap.js","./views/components/notifier/view-all.js":"/Users/MM/Documents/Code/badmin/src/js/views/components/notifier/view-all.js","./views/login/view.js":"/Users/MM/Documents/Code/badmin/src/js/views/login/view.js","./views/view-manager.js":"/Users/MM/Documents/Code/badmin/src/js/views/view-manager.js","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/backbone/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/config.js":[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -17889,7 +17888,7 @@ module.exports = Backbone.Collection.extend({
         return address.get('id');
     }
 });
-},{"../models/address.js":"/Users/MM/Documents/Code/badmin/src/js/models/address.js","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/backbone/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/collections/notifier-collection.js":[function(require,module,exports){
+},{"../models/address.js":"/Users/MM/Documents/Code/badmin/src/js/models/address.js","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/backbone/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/collections/notifications.js":[function(require,module,exports){
 'use strict';
 
 var $ = require('jquery');
@@ -17897,12 +17896,12 @@ var _ = require('underscore');
 var Backbone = require('backbone');
 Backbone.$ = $;
 var Marionette = require('backbone.marionette');
-var NotifierModel = require('../models/notifier-model.js');
+var NotificationModel = require('../models/notification.js');
 
 module.exports = Backbone.Collection.extend({
-    model: NotifierModel
+    model: NotificationModel
 });
-},{"../models/notifier-model.js":"/Users/MM/Documents/Code/badmin/src/js/models/notifier-model.js","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/backbone/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/models/address.js":[function(require,module,exports){
+},{"../models/notification.js":"/Users/MM/Documents/Code/badmin/src/js/models/notification.js","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/backbone/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/models/address.js":[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
@@ -17918,7 +17917,7 @@ module.exports = Backbone.Model.extend({
     fixture: 'ajaxfixtures/address',
     fixtureType: 'json'
 });
-},{"backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/backbone/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/models/notifier-model.js":[function(require,module,exports){
+},{"backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/backbone/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/models/notification.js":[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
@@ -18095,7 +18094,7 @@ Backbone.$ = $;
 var AddressesView = require('./views/addresses/view-all.js');
 var AddressView = require('./views/addresses/view-single.js');
 var AddressModel = require('./models/address.js');
-var NotifierModel = require('./models/notifier-model.js');
+var NotificationModel = require('./models/notification.js');
 var LoginView = require('./views/login/view.js');
 var HomeView = require('./views/home/view.js');
 
@@ -18150,7 +18149,7 @@ module.exports = Backbone.Router.extend({
         //}));
     }
 });
-},{"./models/address.js":"/Users/MM/Documents/Code/badmin/src/js/models/address.js","./models/notifier-model.js":"/Users/MM/Documents/Code/badmin/src/js/models/notifier-model.js","./views/addresses/view-all.js":"/Users/MM/Documents/Code/badmin/src/js/views/addresses/view-all.js","./views/addresses/view-single.js":"/Users/MM/Documents/Code/badmin/src/js/views/addresses/view-single.js","./views/home/view.js":"/Users/MM/Documents/Code/badmin/src/js/views/home/view.js","./views/login/view.js":"/Users/MM/Documents/Code/badmin/src/js/views/login/view.js","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/backbone/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/templates/addresses/view-all-row.hbs":[function(require,module,exports){
+},{"./models/address.js":"/Users/MM/Documents/Code/badmin/src/js/models/address.js","./models/notification.js":"/Users/MM/Documents/Code/badmin/src/js/models/notification.js","./views/addresses/view-all.js":"/Users/MM/Documents/Code/badmin/src/js/views/addresses/view-all.js","./views/addresses/view-single.js":"/Users/MM/Documents/Code/badmin/src/js/views/addresses/view-single.js","./views/home/view.js":"/Users/MM/Documents/Code/badmin/src/js/views/home/view.js","./views/login/view.js":"/Users/MM/Documents/Code/badmin/src/js/views/login/view.js","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/backbone/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/templates/addresses/view-all-row.hbs":[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var Handlebars = require('hbsfy/runtime');
 module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -18176,8 +18175,8 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   else { helper = (depth0 && depth0.street); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
     + "</td>\n<td>";
-  if (helper = helpers.city_id) { stack1 = helper.call(depth0, {hash:{},data:data}); }
-  else { helper = (depth0 && depth0.city_id); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  if (helper = helpers.city) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.city); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
     + "</td>";
   return buffer;
@@ -18232,7 +18231,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-},{"hbsfy/runtime":"/Users/MM/Documents/Code/badmin/node_modules/hbsfy/runtime.js"}],"/Users/MM/Documents/Code/badmin/src/js/templates/components/notifier-item.hbs":[function(require,module,exports){
+},{"hbsfy/runtime":"/Users/MM/Documents/Code/badmin/node_modules/hbsfy/runtime.js"}],"/Users/MM/Documents/Code/badmin/src/js/templates/components/notifier/view-all-row.hbs":[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var Handlebars = require('hbsfy/runtime');
 module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -18241,19 +18240,11 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   var buffer = "", stack1, helper, functionType="function", escapeExpression=this.escapeExpression;
 
 
-  buffer += "<div class=\"notifier-item ink-alert basic ";
-  if (helper = helpers.type) { stack1 = helper.call(depth0, {hash:{},data:data}); }
-  else { helper = (depth0 && depth0.type); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
-  buffer += escapeExpression(stack1)
-    + "\" data-id=\"";
-  if (helper = helpers._id) { stack1 = helper.call(depth0, {hash:{},data:data}); }
-  else { helper = (depth0 && depth0._id); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
-  buffer += escapeExpression(stack1)
-    + "\">\n    <button class=\"ink-dismiss\">&times;</button>\n    ";
+  buffer += "<div class=\"alert\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">×</button>";
   if (helper = helpers.message) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.message); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "\n</div>";
+    + "</div>";
   return buffer;
   });
 
@@ -18266,7 +18257,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   
 
 
-  return "<div class=\"footer text-center\">\n    <div class=\"footer-copyright text-center\">\n        <a href=\"https://github.com/mmukhin/badmin\">GitHub</a> /\n        <a href=\"https://github.com/mmukhin/badmin/blob/master/README.md\">Readme</a> /\n        <a href=\"https://github.com/mmukhin/badmin/issues\">Issues</a> /\n        <a href=\"https://psitsmike.com\">Author</a>\n    </div>\n</div>";
+  return "<div class=\"container-fluid\">\n    <div class=\"well\">\n        <em>Thanks for checking this out! Let me know if you have questions or comments or pull requests.</em><br/>\n        <a href=\"http://psitsmike.com\">Author's Blog and Contact Info</a>\n    </div>\n</div>";
   });
 
 },{"hbsfy/runtime":"/Users/MM/Documents/Code/badmin/node_modules/hbsfy/runtime.js"}],"/Users/MM/Documents/Code/badmin/src/js/templates/home/home.hbs":[function(require,module,exports){
@@ -18278,7 +18269,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   
 
 
-  return "<ol class=\"breadcrumb\">\n    <li><a href=\"#\">Home</a></li>\n    <li class=\"active\">Dashboard</li>\n</ol>\n<div class=\"row\">\n    <div class=\"col-md-6\">\n        <div class=\"alert alert-info alert-dismissable\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">×</button> <strong>Well done!</strong> You successfully read this important alert message.</div>\n    </div>\n    <div class=\"col-md-6\">\n        <div class=\"alert alert-danger\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">×</button> <strong>Oh snap!</strong> Change a few things up and try submitting again.</div>\n    </div>\n</div>\n<div class=\"container\">\n    <div class=\"col-md-6\">\n        <div class=\"panel panel-default\">\n            <div class=\"panel-heading\">Documentation Links</div>\n            <ul class=\"list-group\">\n                <li class=\"list-group-item\"><span class=\"badge\">GitHub</span><a href=\"https://github.com/mmukhin/badmin\">https://github.com/mmukhin/badmin</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">node.js</span><a href=\"http://nodejs.org/download/\">http://nodejs.org/download/</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">npm</span><a href=\"https://docs.npmjs.com/\">https://docs.npmjs.com/</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">Gulp</span><a href=\"https://github.com/gulpjs/gulp\">https://github.com/gulpjs/gulp</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">Backbone.js</span><a href=\"http://backbonejs.org/\">http://backbonejs.org/</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">Marionette.js</span><a href=\"http://marionettejs.com/docs/current/\">http://marionettejs.com/docs/current/</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">Bootstrap</span><a href=\"http://getbootstrap.com/getting-started/\">http://getbootstrap.com/getting-started/</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">Author</span><a href=\"http://psitsmike.com/\">http://psitsmike.com/</a></li>\n            </ul>\n        </div>\n    </div>\n</div>";
+  return "<ol class=\"breadcrumb\">\n    <li><a href=\"#\">Home</a></li>\n    <li class=\"active\">Dashboard</li>\n</ol>\n<div class=\"row\">\n    <div class=\"col-sm-12\">\n        <div class=\"well test-notifications\">\n            <button type=\"button\" class=\"btn  btn-sm disabled\">Click on my friends to the right</button>\n\n            <button type=\"button\" class=\"btn btn-warning btn-sm\" data-notif=\"warning\"\n                    data-msg=\"You are the best programmer in the world.\">Warning</button>\n            <button type=\"button\" class=\"btn btn-info btn-sm\" data-notif=\"info\"\n                    data-msg=\"For your information, this is a recording.\">Info</button>\n            <button type=\"button\" class=\"btn btn-success btn-sm\" data-notif=\"success\"\n                    data-msg=\"Its your birthday!\">Success</button>\n            <button type=\"button\" class=\"btn btn-danger btn-sm\" data-notif=\"danger\"\n                    data-msg=\"Oh snap! A failure is an opportunity in disguise.\">Danger</button>\n        </div>\n    </div>\n</div>\n<div class=\"row\">\n    <div class=\"col-sm-6\">\n        <div class=\"panel panel-default\">\n            <div class=\"panel-heading\"><h3 class=\"panel-title\">Documentation Links</h3></div>\n            <ul class=\"list-group\">\n                <li class=\"list-group-item\"><span class=\"badge\">GitHub</span><a href=\"https://github.com/mmukhin/badmin\">https://github.com/mmukhin/badmin</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">node.js</span><a href=\"http://nodejs.org/download/\">http://nodejs.org/download/</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">npm</span><a href=\"https://docs.npmjs.com/\">https://docs.npmjs.com/</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">Gulp</span><a href=\"https://github.com/gulpjs/gulp\">https://github.com/gulpjs/gulp</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">Backbone.js</span><a href=\"http://backbonejs.org/\">http://backbonejs.org/</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">Marionette.js</span><a href=\"http://marionettejs.com/docs/current/\">http://marionettejs.com/docs/current/</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">Bootstrap</span><a href=\"http://getbootstrap.com/getting-started/\">http://getbootstrap.com/getting-started/</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">Author</span><a href=\"http://psitsmike.com/\">http://psitsmike.com/</a></li>\n            </ul>\n        </div>\n    </div>\n    <div class=\"col-sm-6\">\n        <div class=\"panel panel-default\">\n            <div class=\"panel-heading\"><h3 class=\"panel-title\">Up in the Cloud</h3></div>\n            <ul class=\"list-group\">\n                <li class=\"list-group-item\">\n                    <h6>Memory</h6>\n                    <div class=\"progress\">\n                        <div class=\"progress-bar progress-bar-warning\" role=\"progressbar\" aria-valuenow=\"60\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 60%;\">\n                            60%\n                        </div>\n                    </div>\n                </li>\n                <li class=\"list-group-item\">\n                    <h6>CPU</h6>\n                    <div class=\"progress\">\n                        <div class=\"progress-bar progress-bar-danger\" role=\"progressbar\" aria-valuenow=\"90\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 90%;\">\n                            90%\n                        </div>\n                    </div>\n                </li>\n                <li class=\"list-group-item\">\n                    <h6>Disk</h6>\n                    <div class=\"progress\">\n                        <div class=\"progress-bar progress-bar-info\" role=\"progressbar\" aria-valuenow=\"10\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 10%;\">\n                            10%\n                        </div>\n                    </div>\n                </li>\n            </ul>\n        </div>\n    </div>\n</div>";
   });
 
 },{"hbsfy/runtime":"/Users/MM/Documents/Code/badmin/node_modules/hbsfy/runtime.js"}],"/Users/MM/Documents/Code/badmin/src/js/templates/login/login.hbs":[function(require,module,exports){
@@ -18302,7 +18293,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   
 
 
-  return "<nav class=\"navbar navbar-default navbar-fixed-top\">\n    <div class=\"container-fluid\">\n        <div class=\"navbar-header\">\n            <button class=\"navbar-toggle\"\n                    data-target=\"#bs-example-navbar-collapse-1\"\n                    data-toggle=\"collapse\"\n                    type=\"button\">\n                <span class=\"sr-only\">Toggle navigation</span>\n                <span class=\"icon-bar\"></span> <span class=\"icon-bar\"></span>\n                <span class=\"icon-bar\"></span>\n            </button>\n            <a class=\"navbar-brand\" href=\"#\">BADMIN</a>\n        </div>\n\n        <div class=\"collapse navbar-collapse \" id=\"bs-example-navbar-collapse-1\">\n\n            <ul class=\"nav navbar-nav\">\n                <li class=\"dropdown\">\n                    <a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href=\"#addresses\">\n                        Addresses<b class=\"caret\"></b>\n                    </a>\n                    <ul class=\"dropdown-menu\">\n                        <li><a href=\"#addresses\">View</a></li>\n                        <li><a href=\"#addresses/create\">Create</a></li>\n                    </ul>\n                </li>\n                <li><a href=\"#\">Simple Link</a></li>\n            </ul>\n            <ul id=\"region-user\" class=\" navbar-nav navbar-right\"></ul>\n        </div>\n    </div>\n</nav>";
+  return "<nav class=\"navbar navbar-default navbar-fixed-top\">\n    <div class=\"container-fluid\">\n        <div class=\"navbar-header\">\n            <button class=\"navbar-toggle\"\n                    data-target=\"#bs-example-navbar-collapse-1\"\n                    data-toggle=\"collapse\"\n                    type=\"button\">\n                <span class=\"sr-only\">Toggle navigation</span>\n                <span class=\"icon-bar\"></span> <span class=\"icon-bar\"></span>\n                <span class=\"icon-bar\"></span>\n            </button>\n            <a class=\"navbar-brand\" href=\"#\">\n                <strong>BADMIN</strong>\n            </a>\n        </div>\n\n        <div class=\"collapse navbar-collapse \" id=\"bs-example-navbar-collapse-1\">\n\n            <ul class=\"nav navbar-nav\">\n                <li class=\"dropdown\">\n                    <a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href=\"#addresses\">\n                        Addresses<b class=\"caret\"></b>\n                    </a>\n                    <ul class=\"dropdown-menu\">\n                        <li><a href=\"#addresses\">View</a></li>\n                        <li><a href=\"#addresses/create\">Create</a></li>\n                    </ul>\n                </li>\n                <li><a href=\"#\">Simple Link</a></li>\n            </ul>\n            <ul id=\"region-user\" class=\" navbar-nav navbar-right\"></ul>\n        </div>\n    </div>\n</nav>";
   });
 
 },{"hbsfy/runtime":"/Users/MM/Documents/Code/badmin/node_modules/hbsfy/runtime.js"}],"/Users/MM/Documents/Code/badmin/src/js/templates/users/user-menu.hbs":[function(require,module,exports){
@@ -18475,80 +18466,47 @@ module.exports = Backbone.Marionette.ItemView.extend({
         return this;
     }
 });
-},{"../../models/address.js":"/Users/MM/Documents/Code/badmin/src/js/models/address.js","../../templates/addresses/view-single.hbs":"/Users/MM/Documents/Code/badmin/src/js/templates/addresses/view-single.hbs","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js"}],"/Users/MM/Documents/Code/badmin/src/js/views/components/notifier-item.js":[function(require,module,exports){
+},{"../../models/address.js":"/Users/MM/Documents/Code/badmin/src/js/models/address.js","../../templates/addresses/view-single.hbs":"/Users/MM/Documents/Code/badmin/src/js/templates/addresses/view-single.hbs","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js"}],"/Users/MM/Documents/Code/badmin/src/js/views/components/notifier/view-all-row.js":[function(require,module,exports){
 'use strict';
 
-var _ = require('underscore');
 var Backbone = require('backbone');
-var $ = require('jquery');
-Backbone.$ = $;
 var Marionette = require('backbone.marionette');
-var NotifierModel = require('../../models/notifier-model.js');
+var NotificationModel = require('../../../models/notification.js');
 
 module.exports = Marionette.ItemView.extend({
-    template: require('../../templates/components/notifier-item.hbs'),
+    model: NotificationModel,
+    template: require('../../../templates/components/notifier/view-all-row.hbs'),
+    className: 'col-12 ',
     events: {
-        'click .ink-dismiss': 'closeItem'
+        'click .alert .close': 'closeItem'
     },
-    closeItem: function(a,b) {
+    closeItem: function() {
         this.model.destroy();
+    },
+    onRender: function() {
+        this.$('.alert').addClass('alert-'+this.model.get('type'));
     }
 });
-},{"../../models/notifier-model.js":"/Users/MM/Documents/Code/badmin/src/js/models/notifier-model.js","../../templates/components/notifier-item.hbs":"/Users/MM/Documents/Code/badmin/src/js/templates/components/notifier-item.hbs","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/backbone/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/views/components/notifier.js":[function(require,module,exports){
+},{"../../../models/notification.js":"/Users/MM/Documents/Code/badmin/src/js/models/notification.js","../../../templates/components/notifier/view-all-row.hbs":"/Users/MM/Documents/Code/badmin/src/js/templates/components/notifier/view-all-row.hbs","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js"}],"/Users/MM/Documents/Code/badmin/src/js/views/components/notifier/view-all.js":[function(require,module,exports){
 'use strict';
 
-var _ = require('underscore');
 var Backbone = require('backbone');
-var $ = require('jquery');
-Backbone.$ = $;
 var Marionette = require('backbone.marionette');
-var NotifierCollection = require('../../collections/notifier-collection.js');
-var NotifierModel = require('../../models/notifier-model.js');
+var NotifierCollection = require('../../../collections/notifications.js');
+var NotificationModel = require('../../../models/notification.js');
 
 module.exports = Marionette.CollectionView.extend({
     el: '#notifier',
-    childView: require('./notifier-item.js'),
-    state: {
-        open: false,
-        enabled: true
-    },
+    childView: require('./view-all-row.js'),
     initialize: function() {
-        var self = this;
         this.collection = new NotifierCollection();
-
-        return this;
     },
     addMessage: function(json){
-        this.collection.add( new NotifierModel(json) );
+        this.collection.add( new NotificationModel(json) );
         this.render();
-    },
-    open: function() {
-        // if dropdown is already open, then close
-        if (this.state.open == true) {
-            this.close();
-        }
-        else {
-            var $filterDD = this.context.$('.dd-main');
-            var widthActiveValue = this.context.$('.dd-active-label').width();
-
-            if (widthActiveValue <= 40) {
-                var pxLeft = (widthActiveValue / 2) - 40;
-                $filterDD.css({'left': pxLeft});
-            }
-
-            $filterDD.fadeIn();
-            this.state.open = true;
-        }
-    },
-    close: function() {
-        this.context.$('.dd-main').fadeOut();
-        this.state.open = false;
-    },
-    setLabel: function(title) {
-        this.context.$('.dd-active-label').html(title);
     }
 });
-},{"../../collections/notifier-collection.js":"/Users/MM/Documents/Code/badmin/src/js/collections/notifier-collection.js","../../models/notifier-model.js":"/Users/MM/Documents/Code/badmin/src/js/models/notifier-model.js","./notifier-item.js":"/Users/MM/Documents/Code/badmin/src/js/views/components/notifier-item.js","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/backbone/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/views/footer/view.js":[function(require,module,exports){
+},{"../../../collections/notifications.js":"/Users/MM/Documents/Code/badmin/src/js/collections/notifications.js","../../../models/notification.js":"/Users/MM/Documents/Code/badmin/src/js/models/notification.js","./view-all-row.js":"/Users/MM/Documents/Code/badmin/src/js/views/components/notifier/view-all-row.js","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js"}],"/Users/MM/Documents/Code/badmin/src/js/views/footer/view.js":[function(require,module,exports){
 'use strict';
 
 var Backbone = require('backbone');
@@ -18566,9 +18524,20 @@ module.exports = Backbone.Marionette.View.extend({
 var Backbone = require('backbone');
 
 module.exports = Backbone.Marionette.View.extend({
-    tagName: 'footer',
     template: require('../../templates/home/home.hbs'),
+    events: {
+        'click .test-notifications .btn': 'clickNotification'
+    },
+    clickNotification: function(e) {
+
+        TheApp.app.notifier.addMessage({
+            'type': e.currentTarget.dataset.notif,
+            'message': e.currentTarget.dataset.msg
+        });
+    },
     render: function() {
+
+
         this.$el.html(this.template());
     }
 });
@@ -18639,7 +18608,7 @@ module.exports = Marionette.LayoutView.extend({
 var Backbone = require('backbone');
 var $ = require('jquery');
 Backbone.$ = $;
-var NotifierModel = require('../../models/notifier-model.js');
+var NotificationModel = require('../../models/notification.js');
 
 
 module.exports = Backbone.Marionette.View.extend({
@@ -18658,7 +18627,7 @@ module.exports = Backbone.Marionette.View.extend({
         TheApp.app.user.logout();
     }
 });
-},{"../../models/notifier-model.js":"/Users/MM/Documents/Code/badmin/src/js/models/notifier-model.js","../../templates/users/user-menu.hbs":"/Users/MM/Documents/Code/badmin/src/js/templates/users/user-menu.hbs","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js"}],"/Users/MM/Documents/Code/badmin/src/js/views/view-manager.js":[function(require,module,exports){
+},{"../../models/notification.js":"/Users/MM/Documents/Code/badmin/src/js/models/notification.js","../../templates/users/user-menu.hbs":"/Users/MM/Documents/Code/badmin/src/js/templates/users/user-menu.hbs","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js"}],"/Users/MM/Documents/Code/badmin/src/js/views/view-manager.js":[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
@@ -18674,8 +18643,7 @@ module.exports = Marionette.LayoutView.extend({
     regions: {
         currentViewRegion: '#region-current-view',
         navRegion: '#region-nav',
-        footerRegion: '#region-footer',
-        notifierRegion: '#region-notifier'
+        footerRegion: '#region-footer'
     },
     initialize: function(){
         this.render();

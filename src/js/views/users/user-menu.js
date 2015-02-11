@@ -3,7 +3,7 @@
 var Backbone = require('backbone');
 var $ = require('jquery');
 Backbone.$ = $;
-var NotifierModel = require('../../models/notifier-model.js');
+var NotificationModel = require('../../models/notification.js');
 
 
 module.exports = Backbone.Marionette.View.extend({

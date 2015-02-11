@@ -5,7 +5,7 @@ Backbone.$ = $;
 var AddressesView = require('./views/addresses/view-all.js');
 var AddressView = require('./views/addresses/view-single.js');
 var AddressModel = require('./models/address.js');
-var NotifierModel = require('./models/notifier-model.js');
+var NotificationModel = require('./models/notification.js');
 var LoginView = require('./views/login/view.js');
 var HomeView = require('./views/home/view.js');
 

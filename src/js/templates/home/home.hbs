@@ -3,17 +3,25 @@
     <li class="active">Dashboard</li>
 </ol>
 <div class="row">
-    <div class="col-md-6">
-        <div class="alert alert-info alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button> <strong>Well done!</strong> You successfully read this important alert message.</div>
-    </div>
-    <div class="col-md-6">
-        <div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button> <strong>Oh snap!</strong> Change a few things up and try submitting again.</div>
+    <div class="col-sm-12">
+        <div class="well test-notifications">
+            <button type="button" class="btn  btn-sm disabled">Click on my friends to the right</button>
+
+            <button type="button" class="btn btn-warning btn-sm" data-notif="warning"
+                    data-msg="You are the best programmer in the world.">Warning</button>
+            <button type="button" class="btn btn-info btn-sm" data-notif="info"
+                    data-msg="For your information, this is a recording.">Info</button>
+            <button type="button" class="btn btn-success btn-sm" data-notif="success"
+                    data-msg="Its your birthday!">Success</button>
+            <button type="button" class="btn btn-danger btn-sm" data-notif="danger"
+                    data-msg="Oh snap! A failure is an opportunity in disguise.">Danger</button>
+        </div>
     </div>
 </div>
-<div class="container">
-    <div class="col-md-6">
+<div class="row">
+    <div class="col-sm-6">
         <div class="panel panel-default">
-            <div class="panel-heading">Documentation Links</div>
+            <div class="panel-heading"><h3 class="panel-title">Documentation Links</h3></div>
             <ul class="list-group">
                 <li class="list-group-item"><span class="badge">GitHub</span><a href="https://github.com/mmukhin/badmin">https://github.com/mmukhin/badmin</a></li>
                 <li class="list-group-item"><span class="badge">node.js</span><a href="http://nodejs.org/download/">http://nodejs.org/download/</a></li>
@@ -23,6 +31,37 @@
                 <li class="list-group-item"><span class="badge">Marionette.js</span><a href="http://marionettejs.com/docs/current/">http://marionettejs.com/docs/current/</a></li>
                 <li class="list-group-item"><span class="badge">Bootstrap</span><a href="http://getbootstrap.com/getting-started/">http://getbootstrap.com/getting-started/</a></li>
                 <li class="list-group-item"><span class="badge">Author</span><a href="http://psitsmike.com/">http://psitsmike.com/</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-sm-6">
+        <div class="panel panel-default">
+            <div class="panel-heading"><h3 class="panel-title">Up in the Cloud</h3></div>
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <h6>Memory</h6>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+                            60%
+                        </div>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <h6>CPU</h6>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100" style="width: 90%;">
+                            90%
+                        </div>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <h6>Disk</h6>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style="width: 10%;">
+                            10%
+                        </div>
+                    </div>
+                </li>
             </ul>
         </div>
     </div>

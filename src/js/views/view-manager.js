@@ -13,8 +13,7 @@ module.exports = Marionette.LayoutView.extend({
     regions: {
         currentViewRegion: '#region-current-view',
         navRegion: '#region-nav',
-        footerRegion: '#region-footer',
-        notifierRegion: '#region-notifier'
+        footerRegion: '#region-footer'
     },
     initialize: function(){
         this.render();
