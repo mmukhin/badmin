@@ -8,15 +8,12 @@ module.exports = Backbone.Marionette.View.extend({
         'click .test-notifications .btn': 'clickNotification'
     },
     clickNotification: function(e) {
-
         TheApp.app.notifier.addMessage({
             'type': e.currentTarget.dataset.notif,
             'message': e.currentTarget.dataset.msg
         });
     },
     render: function() {
-
-
         this.$el.html(this.template());
     }
 });

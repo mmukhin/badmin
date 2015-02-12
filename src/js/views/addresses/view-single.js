@@ -1,6 +1,7 @@
 'use strict';
 
 var Backbone = require('backbone');
+var $ = require('jquery');
 var AddressModel = require('../../models/address.js');
 
 module.exports = Backbone.Marionette.ItemView.extend({
@@ -65,9 +66,11 @@ module.exports = Backbone.Marionette.ItemView.extend({
             })
             .error( function(response){
                 TheApp.app.notifier.addMessage({
-                    'type': 'error',
-                    'message': response.responseJSON.message
+                    'type': 'danger',
+                    //'message': response.responseJSON.message
+                    'message': 'I did not create a create.json fixture :)'
                 });
+                self.render().animateFetchStop();
             });
     },
     cancelSave: function() {

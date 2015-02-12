@@ -1,52 +1,57 @@
-<ol class="breadcrumb">
+<ol class="breadcrumb well well-sm">
     <li><a href="#">Home</a></li>
     <li><a href="#addresses">Addresses</a></li>
-    <li class="active">Create Address</li>
+    <li class="active">{{#if create}}Create Address{{else}}{{title}}{{/if}}</li>
 </ol>
 
-<form id="address-form" class="ink-form">
-    <input type="hidden" name="create" value="{{create}}" />
-    <div class="column-group gutters">
-        <label for="id" class="all-10">City ID</label>
-        <div class="control all-90">
-            <b>{{id}}</b>
-        </div>
+<div class="panel panel-default panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            {{#if create}}Create Address{{else}}Edit Address{{/if}}
+            (FYI I only created 1 model fixture, so the same data will show up here)
+        </h3>
     </div>
-    <div class="column-group gutters">
-        <label for="title" class="all-10">Title</label>
-        <div class="control all-90">
-            <input type="text" name="title" id="title" class="all-50" value="{{title}}" placeholder="e.g. Dog Bar"/>
-        </div>
-    </div>
-    <div class="column-group gutters">
-        <label for="street" class="all-10">No. & Street</label>
-        <div class="control all-90">
-            <input type="text" name="street" id="street" class="all-50" value="{{street}}" placeholder="e.g. 33 Yellow Street" />
-        </div>
-    </div>
-    <div class="column-group gutters">
-        <label for="zip" class="all-10">Zip</label>
-        <div class="control all-90">
-            <input type="text" name="zip" class="all-50" id="zip" value="{{zip}}">
-        </div>
-    </div>
-    <div class="column-group gutters">
-        <label for="city" class="all-10">City / Neighborhood</label>
-        <div class="control all-90">
-            <input type="text" name="city" id="city" class="all-50" value="{{city}}" placeholder="e.g. West LA" />
-        </div>
-    </div>
-    <div class="column-group gutters">
-        <label for="parent_city_id" class="all-10">Parent City</label>
-        <div class="control all-90">
-            <select name="parent_city_id" id="parent_city_id"></select>
-        </div>
-    </div>
+    <div class="panel-body">
+        <form id="address-form" class="badmin-form ">
+            <input type="hidden" name="create" value="{{create}}" />
 
-    <hr/>
-    <span class="ink-button orange right-space form-save">Save</span>
-    <span class="ink-button white form-cancel">Cancel</span>
-</form>
+            <div class="input-group">
+                <span for="id" class="badmin-label input-group-addon">City ID</span>
+                <input disabled type="text" class="form-control" value="{{id}}" />
+            </div>
+            <div class="input-group">
+                <span for="title" class="badmin-label input-group-addon">Title</span>
+                <input type="text" name="title" id="title" class="form-control" value="{{title}}" placeholder="e.g. Dog Bar"/>
+            </div>
+            <div class="input-group">
+                <span for="street" class="badmin-label input-group-addon">No. & Street</span>
+                <input type="text" name="street" id="street" class="form-control" value="{{street}}" placeholder="e.g. 33 Yellow Street" />
+            </div>
+            <div class="input-group">
+                <span for="zip" class="badmin-label input-group-addon">Zip</span>
+                <input type="text" name="zip" class="form-control" id="zip" value="{{zip}}">
+            </div>
+            <div class="input-group">
+                <span for="parent_city_id" class="badmin-label input-group-addon">City</span>
+
+                <div>
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Action <span class="caret"></span></button>
+                    <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                        <li><a href="#">Los Angeles</a></li>
+                        <li><a href="#">New York</a></li>
+                        <li><a href="#">San Francisco</a></li>
+                    </ul>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="panel-footer">
+        <button class="btn btn-success form-save">Save</button>
+        <button class="btn btn-warning form-cancel">Cancel</button>
+    </div>
+</div>
+
+
 
 
 

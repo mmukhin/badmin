@@ -1,29 +1,15 @@
 {
-    "name": "mukhin",
-    "description": "website",
+    "name": "badmin",
+    "description": "Admin panel written using backbone.js, marionette.js, bootstrap and gulp. Demo: http://mmukhin.github.io/badmin",
     "author": {
         "name": "Michael Mukhin",
-        "email": "mukhin.m@gmail.com",
+        "email": "hello@psitsmike.com",
         "twitter": "@michaelmukhin"
     },
-    "homepage": "https://foobar.com",
+    "homepage": "https://github.com/mmukhin/badmin",
     "repository": {
         "type": "git",
-        "url": "https://github.com/mmukhin/website"
-    },
-    "pre-commit": [
-        "lint"
-    ],
-    "browser": {
-        "underscore": "backbone/node_modules/underscore",
-        "plugin": "./src/javascript/vendor/jquery-plugin.js"
-    },
-    "browserify": {
-        "transform": [
-            "browserify-shim",
-            "coffeeify",
-            "hbsfy"
-        ]
+        "url": "https://github.com/mmukhin/badmin"
     },
     "browserify-shim": {
         "plugin": {
@@ -33,13 +19,17 @@
             ]
         }
     },
+    "browserify": {
+        "transform": [
+            "browserify-shim",
+            "coffeeify",
+            "hbsfy"
+        ]
+    },
     "devDependencies": {
         "browser-sync": "~1.3.6",
         "browserify": "~5.10.1",
         "browserify-shim": "~3.7.0",
-        "coffeeify": "~0.7.0",
-        "blueimp-file-upload": "~9.9.2",
-        "dropzone": "~3.12.0",
         "gulp": "^3.8.7",
         "gulp-changed": "^0.4.1",
         "gulp-concat": "^2.4.1",
@@ -59,10 +49,9 @@
         "watchify": "~1.0.2"
     },
     "dependencies": {
-        "bootflat": "~2.0",
         "backbone": "~1.1.2",
-        "jquery": "~2.1.0",
-        "jquery-ui": "~1.10.5",
-        "backbone.marionette": "~2.2.0"
+        "backbone.marionette": "~2.3.2",
+        "jquery": "~2.1.3",
+        "underscore": "~1.7.0"
     }
 }

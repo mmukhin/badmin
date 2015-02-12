@@ -1,7 +1,6 @@
 'use strict';
 
 var _ = require('underscore');
-var $ = require('jquery');
 var Backbone = require('backbone');
 var Marionette = require('backbone.marionette');
 var NavView = require('./nav/view.js');

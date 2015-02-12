@@ -3,10 +3,10 @@
 module.exports = {
     local: {
         env: 'local',
-        api: 'http://api.vmp.localhost.com'
+        api: 'http://path-to-local'
     },
     production: {
         env: 'production',
-        api: 'http://api.verymportant.com'
+        api: 'http://path-to-production'
     }
 };

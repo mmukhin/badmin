@@ -5,14 +5,9 @@ var AddressesCollection = require('../../collections/addresses.js');
 var AddressItemView = require('../addresses/view-all-row.js');
 
 module.exports = Backbone.Marionette.CompositeView.extend({
-    tagName: 'div',
-    className: 'inline-block relative',
     template: require('../../templates/addresses/view-all.hbs'),
     childView: AddressItemView,
     childViewContainer: '.addresses-data',
-    events: {
-        "click .dd-active-label": "clickActive"
-    },
     initialize: function () {
         var self = this;
 

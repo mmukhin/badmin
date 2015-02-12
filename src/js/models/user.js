@@ -13,60 +13,37 @@ module.exports = Backbone.Model.extend({
     urlRoot : window.TheApp.config.api + '/users',
     isUserLoggedIn: function(callback) {
         var self = this;
-        
-        $.ajax({
-            url: window.TheApp.config.api + '/auth/user',
-            xhrFields: { withCredentials: true },
-            error: function (userObj) {
+
+
+        /**
+         * Enable this if you'd like
+         */
+        /*TheApp.app.service.makeRequest(
+            '/auth/user',
+            'get',
+            {},
+            true,
+            function (userObj) {
                 var model = self.set(userObj);
                 callback(false, model);
             },
-            success: function (userObj) {
+            function (userObj) {
                 var model = self.set(userObj);
                 callback(true, model);
             }
-        });
+        );*/
+
+        // Remove this once you set up your own user API
+        var userJson = {
+            id: 1,
+            email: "hello@psitsmike.com",
+            username: "BobMarley",
+            image: "images/pup.png"
+        };
+        var userModel = self.set(userJson);
+        callback(true, userModel);
     },
     logout: function() {
-
-        $.ajax({
-            method: 'get',
-            url: window.TheApp.config.api + '/auth/logout',
-            xhrFields: { withCredentials: true },
-            error: function (response) {
-                TheApp.app.notifier.addMessage({
-                    'type': 'error',
-                    'message': 'Error logging out'
-                });
-            },
-            success: function (response) {
-                window.location.reload();
-            }
-        });
-    },
-
-    tryLogin: function(username, password) {
-        var self = this;
-
-        $.ajax({
-            method: 'post',
-            url: window.TheApp.config.api + '/auth/login',
-            xhrFields: { withCredentials: true },
-            data: {
-                username: username,
-                password: password
-            },
-            error: function (userObj) {
-                TheApp.app.notifier.addMessage({
-                    'type': 'error',
-                    'message': 'Invalid login'
-                });
-            },
-            success: function (userObj) {
-                var model = self.set(userObj);
-                TheApp.app.user = model;
-                TheApp.app.vent.trigger('login:success');
-            }
-        });
+        // Use this!
     }
 });

@@ -5,8 +5,6 @@ Backbone.$ = $;
 var AddressesView = require('./views/addresses/view-all.js');
 var AddressView = require('./views/addresses/view-single.js');
 var AddressModel = require('./models/address.js');
-var NotificationModel = require('./models/notification.js');
-var LoginView = require('./views/login/view.js');
 var HomeView = require('./views/home/view.js');
 
 module.exports = Backbone.Router.extend({
@@ -15,19 +13,19 @@ module.exports = Backbone.Router.extend({
         'addresses/create': 'addressesCreate',
         'addresses/:id': 'addressesById',
         'addresses': 'addresses',
-        'login': 'login',
+        '*path': 'notFound'
     },
     activateMenu: function(className) {
-        $('.menu').children().removeClass('active');
+        $('#main-nav').children().removeClass('active');
         $(className).addClass('active');
     },
     home: function() {
+        this.activateMenu('.navbar-brand');
 
-        this.activateMenu('.menu-addresses');
         TheApp.app.viewManager.currentViewRegion.show( new HomeView() );
     },
     addressesCreate: function (id) {
-        this.activateMenu('.menu-address-create, .menu-addresses');
+        this.activateMenu('#nav-addresses');
 
         TheApp.app.viewManager.currentViewRegion.show( new AddressView({
             'model': new AddressModel(),
@@ -35,7 +33,7 @@ module.exports = Backbone.Router.extend({
         }));
     },
     addressesById: function (id) {
-        this.activateMenu('.menu-addresses');
+        this.activateMenu('#nav-addresses');
 
         var AddressModelById = new AddressModel({'id': id});
         AddressModelById.fetch({
@@ -50,13 +48,11 @@ module.exports = Backbone.Router.extend({
         });
     },
     addresses: function () {
-        this.activateMenu('.menu-addresses');
+        this.activateMenu('#nav-addresses');
+
         TheApp.app.viewManager.currentViewRegion.show( new AddressesView() );
     },
     notFound: function () {
-        //alert('not found');
-        //Boomrat.app.appView.contentRegion.show(new Boomrat.Views.Error({
-        //    code: 404
-        //}));
+        alert('View not found');
     }
 });
