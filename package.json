@@ -1,16 +1,22 @@
 {
     "name": "badmin",
-    "description": "Admin panel written using backbone.js, marionette.js, bootstrap and gulp. Demo: http://mmukhin.github.io/badmin",
+    "version": "0.1",
+    "description": "Marionette.js & Backbone.js admin panel dashboard. Demo: http://mmukhin.github.io/badmin",
+    "keywords": ["badmin", "badmin panel", "marionette.js admin", "marionette admin", "backbone.js admin", "backbone dashboard", "marionette dashboard"],
     "author": {
         "name": "Michael Mukhin",
-        "email": "hello@psitsmike.com",
-        "twitter": "@michaelmukhin"
+        "email": "hello@psitsmike.com"
     },
     "homepage": "https://github.com/mmukhin/badmin",
     "repository": {
         "type": "git",
-        "url": "https://github.com/mmukhin/badmin"
+        "url": "https://github.com/mmukhin/badmin.git"
     },
+    "bugs": {
+        "url" : "https://github.com/mmukhin/badmin/issues",
+        "email" : "hello@psitsmike.com"
+    },
+    "license" : "MIT",
     "browserify-shim": {
         "plugin": {
             "exports": "plugin",
