@@ -4,7 +4,8 @@ var _ = require('underscore');
 var Backbone = require('backbone');
 Backbone.$ = $;
 var Marionette = require('backbone.marionette');
-var LoginView = require('./views/login/view.js');
+var Service = require('./service.js');
+var Notifier = require('./views/components/notifier/view-all.js');
 require('./plugins/backbone.cors.js');
 require('./plugins/backbone.fixtures.js');
 require('./vendor/bootstrap.js');
@@ -15,33 +16,23 @@ $(document).ready( function(){
 
     TheApp.config = require('../../config.js')[window.APPLICATION_ENVIRONMENT];
     TheApp.app = new Marionette.Application();
-
-    //var md = new MobileDetect(window.navigator.userAgent);
-    TheApp.app.env = {
-        isMobileScreen: true
-        //isMobileBrowser: md.mobile()
-    };
-
-    var NotifierView = require('./views/components/notifier/view-all.js');
-    TheApp.app.notifier = new NotifierView();
+    TheApp.app.service = Service;
+    TheApp.app.notifier = new Notifier();
 
     TheApp.app.addInitializer(function () {
+
         var UserModel = require('./models/user.js');
+
         TheApp.app.user = new UserModel();
-        TheApp.app.login = new LoginView();
-
-        TheApp.app.vent.trigger('login:success');
-
-        /*TheApp.app.user.isUserLoggedIn( function(isLoggedIn, user) {
+        TheApp.app.user.isUserLoggedIn( function(isLoggedIn, user) {
             if (isLoggedIn == true) {
                 TheApp.app.user = user;
                 TheApp.app.vent.trigger('login:success');
             }
             else {
-                TheApp.app.user = user;
-                TheApp.app.login.render();
+                window.location.replace('http://path-to-login-page-here.com');
             }
-        });*/
+        });
     });
 
     TheApp.app.vent.on('login:success', function () {
@@ -52,8 +43,6 @@ $(document).ready( function(){
         var Router = require('./router.js');
         TheApp.app.router = new Router();
 
-        TheApp.app.login.remove();
-
         Backbone.history.start();
     });
 
@@ -62,27 +51,26 @@ $(document).ready( function(){
     });
 
     TheApp.app.start();
-
 });
-},{"../../config.js":"/Users/MM/Documents/Code/badmin/config.js","./models/user.js":"/Users/MM/Documents/Code/badmin/src/js/models/user.js","./plugins/backbone.cors.js":"/Users/MM/Documents/Code/badmin/src/js/plugins/backbone.cors.js","./plugins/backbone.fixtures.js":"/Users/MM/Documents/Code/badmin/src/js/plugins/backbone.fixtures.js","./router.js":"/Users/MM/Documents/Code/badmin/src/js/router.js","./vendor/bootstrap.js":"/Users/MM/Documents/Code/badmin/src/js/vendor/bootstrap.js","./views/components/notifier/view-all.js":"/Users/MM/Documents/Code/badmin/src/js/views/components/notifier/view-all.js","./views/login/view.js":"/Users/MM/Documents/Code/badmin/src/js/views/login/view.js","./views/view-manager.js":"/Users/MM/Documents/Code/badmin/src/js/views/view-manager.js","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/backbone/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/config.js":[function(require,module,exports){
+},{"../../config.js":"/Users/MM/Documents/Code/badmin/config.js","./models/user.js":"/Users/MM/Documents/Code/badmin/src/js/models/user.js","./plugins/backbone.cors.js":"/Users/MM/Documents/Code/badmin/src/js/plugins/backbone.cors.js","./plugins/backbone.fixtures.js":"/Users/MM/Documents/Code/badmin/src/js/plugins/backbone.fixtures.js","./router.js":"/Users/MM/Documents/Code/badmin/src/js/router.js","./service.js":"/Users/MM/Documents/Code/badmin/src/js/service.js","./vendor/bootstrap.js":"/Users/MM/Documents/Code/badmin/src/js/vendor/bootstrap.js","./views/components/notifier/view-all.js":"/Users/MM/Documents/Code/badmin/src/js/views/components/notifier/view-all.js","./views/view-manager.js":"/Users/MM/Documents/Code/badmin/src/js/views/view-manager.js","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/config.js":[function(require,module,exports){
 'use strict';
 
 module.exports = {
     local: {
         env: 'local',
-        api: 'http://api.vmp.localhost.com'
+        api: 'http://path-to-local'
     },
     production: {
         env: 'production',
-        api: 'http://api.verymportant.com'
+        api: 'http://path-to-production'
     }
 };
 },{}],"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js":[function(require,module,exports){
 // MarionetteJS (Backbone.Marionette)
 // ----------------------------------
-// v2.2.2
+// v2.3.2
 //
-// Copyright (c)2014 Derick Bailey, Muted Solutions, LLC.
+// Copyright (c)2015 Derick Bailey, Muted Solutions, LLC.
 // Distributed under MIT license
 //
 // http://marionettejs.com
@@ -91,7 +79,7 @@ module.exports = {
 
   if (typeof define === 'function' && define.amd) {
     define(['backbone', 'underscore', 'backbone.wreqr', 'backbone.babysitter'], function(Backbone, _) {
-      return (root.Marionette = factory(root, Backbone, _));
+      return (root.Marionette = root.Mn = factory(root, Backbone, _));
     });
   } else if (typeof exports !== 'undefined') {
     var Backbone = require('backbone');
@@ -100,39 +88,47 @@ module.exports = {
     var BabySitter = require('backbone.babysitter');
     module.exports = factory(root, Backbone, _);
   } else {
-    root.Marionette = factory(root, root.Backbone, root._);
+    root.Marionette = root.Mn = factory(root, root.Backbone, root._);
   }
 
 }(this, function(root, Backbone, _) {
   'use strict';
 
   var previousMarionette = root.Marionette;
+  var previousMn = root.Mn;
 
   var Marionette = Backbone.Marionette = {};
 
-  Marionette.VERSION = '2.2.2';
+  Marionette.VERSION = '2.3.2';
 
   Marionette.noConflict = function() {
     root.Marionette = previousMarionette;
+    root.Mn = previousMn;
     return this;
   };
 
   // Get the Deferred creator for later use
   Marionette.Deferred = Backbone.$.Deferred;
 
-  /* jshint unused: false */
+  /* jshint unused: false *//* global console */
   
   // Helpers
   // -------
-  
-  // For slicing `arguments` in functions
-  var slice = Array.prototype.slice;
   
   // Marionette.extend
   // -----------------
   
   // Borrow the Backbone `extend` method so we can use it as needed
   Marionette.extend = Backbone.Model.extend;
+  
+  // Marionette.isNodeAttached
+  // -------------------------
+  
+  // Determine if `el` is a child of the document
+  Marionette.isNodeAttached = function(el) {
+    return Backbone.$.contains(document.documentElement, el);
+  };
+  
   
   // Marionette.getOption
   // --------------------
@@ -141,20 +137,31 @@ module.exports = {
   // object or its `options`, with `options` taking precedence.
   Marionette.getOption = function(target, optionName) {
     if (!target || !optionName) { return; }
-    var value;
-  
     if (target.options && (target.options[optionName] !== undefined)) {
-      value = target.options[optionName];
+      return target.options[optionName];
     } else {
-      value = target[optionName];
+      return target[optionName];
     }
-  
-    return value;
   };
   
   // Proxy `Marionette.getOption`
   Marionette.proxyGetOption = function(optionName) {
     return Marionette.getOption(this, optionName);
+  };
+  
+  // Similar to `_.result`, this is a simple helper
+  // If a function is provided we call it with context
+  // otherwise just return the value. If the value is
+  // undefined return a default value
+  Marionette._getValue = function(value, context, params) {
+    if (_.isFunction(value)) {
+      // We need to ensure that params is not undefined
+      // to prevent `apply` from failing in ie8
+      params = params || [];
+  
+      value = value.apply(context, params);
+    }
+    return value;
   };
   
   // Marionette.normalizeMethods
@@ -163,17 +170,15 @@ module.exports = {
   // Pass in a mapping of events => functions or function names
   // and return a mapping of events => functions
   Marionette.normalizeMethods = function(hash) {
-    var normalizedHash = {};
-    _.each(hash, function(method, name) {
+    return _.reduce(hash, function(normalizedHash, method, name) {
       if (!_.isFunction(method)) {
         method = this[method];
       }
-      if (!method) {
-        return;
+      if (method) {
+        normalizedHash[name] = method;
       }
-      normalizedHash[name] = method;
-    }, this);
-    return normalizedHash;
+      return normalizedHash;
+    }, {}, this);
   };
   
   // utility method for parsing @ui. syntax strings
@@ -189,37 +194,22 @@ module.exports = {
   // swaps the @ui with the associated selector.
   // Returns a new, non-mutated, parsed events hash.
   Marionette.normalizeUIKeys = function(hash, ui) {
-    if (typeof(hash) === 'undefined') {
-      return;
-    }
-  
-    hash = _.clone(hash);
-  
-    _.each(_.keys(hash), function(key) {
+    return _.reduce(hash, function(memo, val, key) {
       var normalizedKey = Marionette.normalizeUIString(key, ui);
-      if (normalizedKey !== key) {
-        hash[normalizedKey] = hash[key];
-        delete hash[key];
-      }
-    });
-  
-    return hash;
+      memo[normalizedKey] = val;
+      return memo;
+    }, {});
   };
   
   // allows for the use of the @ui. syntax within
   // a given value for regions
   // swaps the @ui with the associated selector
   Marionette.normalizeUIValues = function(hash, ui) {
-    if (typeof(hash) === 'undefined') {
-      return;
-    }
-  
     _.each(hash, function(val, key) {
       if (_.isString(val)) {
         hash[key] = Marionette.normalizeUIString(val, ui);
       }
     });
-  
     return hash;
   };
   
@@ -242,15 +232,31 @@ module.exports = {
     });
   };
   
-  // Trigger an event and/or a corresponding method name. Examples:
-  //
-  // `this.triggerMethod("foo")` will trigger the "foo" event and
-  // call the "onFoo" method.
-  //
-  // `this.triggerMethod("foo:bar")` will trigger the "foo:bar" event and
-  // call the "onFooBar" method.
-  Marionette.triggerMethod = function(event) {
+  var deprecate = Marionette.deprecate = function(message, test) {
+    if (_.isObject(message)) {
+      message = (
+        message.prev + ' is going to be removed in the future. ' +
+        'Please use ' + message.next + ' instead.' +
+        (message.url ? ' See: ' + message.url : '')
+      );
+    }
   
+    if ((test === undefined || !test) && !deprecate._cache[message]) {
+      deprecate._warn('Deprecation warning: ' + message);
+      deprecate._cache[message] = true;
+    }
+  };
+  
+  deprecate._warn = typeof console !== 'undefined' && (console.warn || console.log) || function() {};
+  deprecate._cache = {};
+  
+  /* jshint maxstatements: 14, maxcomplexity: 7 */
+  
+  // Trigger Method
+  // --------------
+  
+  
+  Marionette._triggerMethod = (function() {
     // split the event name on the ":"
     var splitter = /(^|:)(\w)/gi;
   
@@ -260,102 +266,109 @@ module.exports = {
       return eventName.toUpperCase();
     }
   
-    // get the method name from the event name
-    var methodName = 'on' + event.replace(splitter, getEventName);
-    var method = this[methodName];
-    var result;
+    return function(context, event, args) {
+      var noEventArg = arguments.length < 3;
+      if (noEventArg) {
+        args = event;
+        event = args[0];
+      }
   
-    // call the onMethodName if it exists
-    if (_.isFunction(method)) {
-      // pass all arguments, except the event name
-      result = method.apply(this, _.tail(arguments));
-    }
+      // get the method name from the event name
+      var methodName = 'on' + event.replace(splitter, getEventName);
+      var method = context[methodName];
+      var result;
   
-    // trigger the event, if a trigger method exists
-    if (_.isFunction(this.trigger)) {
-      this.trigger.apply(this, arguments);
-    }
+      // call the onMethodName if it exists
+      if (_.isFunction(method)) {
+        // pass all args, except the event name
+        result = method.apply(context, noEventArg ? _.rest(args) : args);
+      }
   
-    return result;
+      // trigger the event, if a trigger method exists
+      if (_.isFunction(context.trigger)) {
+        if (noEventArg + args.length > 1) {
+          context.trigger.apply(context, noEventArg ? args : [event].concat(_.rest(args, 0)));
+        } else {
+          context.trigger(event);
+        }
+      }
+  
+      return result;
+    };
+  })();
+  
+  // Trigger an event and/or a corresponding method name. Examples:
+  //
+  // `this.triggerMethod("foo")` will trigger the "foo" event and
+  // call the "onFoo" method.
+  //
+  // `this.triggerMethod("foo:bar")` will trigger the "foo:bar" event and
+  // call the "onFooBar" method.
+  Marionette.triggerMethod = function(event) {
+    return Marionette._triggerMethod(this, arguments);
   };
   
   // triggerMethodOn invokes triggerMethod on a specific context
   //
   // e.g. `Marionette.triggerMethodOn(view, 'show')`
   // will trigger a "show" event or invoke onShow the view.
-  Marionette.triggerMethodOn = function(context, event) {
-    var args = _.tail(arguments, 2);
-    var fnc;
+  Marionette.triggerMethodOn = function(context) {
+    var fnc = _.isFunction(context.triggerMethod) ?
+                  context.triggerMethod :
+                  Marionette.triggerMethod;
   
-    if (_.isFunction(context.triggerMethod)) {
-      fnc = context.triggerMethod;
-    } else {
-      fnc = Marionette.triggerMethod;
-    }
-  
-    return fnc.apply(context, [event].concat(args));
+    return fnc.apply(context, _.rest(arguments));
   };
   
-  // DOMRefresh
-  // ----------
-  //
+  // DOM Refresh
+  // -----------
+  
   // Monitor a view's state, and after it has been rendered and shown
   // in the DOM, trigger a "dom:refresh" event every time it is
   // re-rendered.
   
-  Marionette.MonitorDOMRefresh = (function(documentElement) {
+  Marionette.MonitorDOMRefresh = function(view) {
+  
     // track when the view has been shown in the DOM,
     // using a Marionette.Region (or by other means of triggering "show")
-    function handleShow(view) {
+    function handleShow() {
       view._isShown = true;
-      triggerDOMRefresh(view);
+      triggerDOMRefresh();
     }
   
     // track when the view has been rendered
-    function handleRender(view) {
+    function handleRender() {
       view._isRendered = true;
-      triggerDOMRefresh(view);
+      triggerDOMRefresh();
     }
   
     // Trigger the "dom:refresh" event and corresponding "onDomRefresh" method
-    function triggerDOMRefresh(view) {
-      if (view._isShown && view._isRendered && isInDOM(view)) {
+    function triggerDOMRefresh() {
+      if (view._isShown && view._isRendered && Marionette.isNodeAttached(view.el)) {
         if (_.isFunction(view.triggerMethod)) {
           view.triggerMethod('dom:refresh');
         }
       }
     }
   
-    function isInDOM(view) {
-      return Backbone.$.contains(documentElement, view.el);
-    }
+    view.on({
+      show: handleShow,
+      render: handleRender
+    });
+  };
   
-    // Export public API
-    return function(view) {
-      view.listenTo(view, 'show', function() {
-        handleShow(view);
-      });
-  
-      view.listenTo(view, 'render', function() {
-        handleRender(view);
-      });
-    };
-  })(document.documentElement);
-  
-
   /* jshint maxparams: 5 */
   
-  // Marionette.bindEntityEvents & unbindEntityEvents
-  // ---------------------------
+  // Bind Entity Events & Unbind Entity Events
+  // -----------------------------------------
   //
-  // These methods are used to bind/unbind a backbone "entity" (collection/model)
+  // These methods are used to bind/unbind a backbone "entity" (e.g. collection/model)
   // to methods on a target object.
   //
-  // The first parameter, `target`, must have a `listenTo` method from the
-  // EventBinder object.
+  // The first parameter, `target`, must have the Backbone.Events module mixed in.
   //
-  // The second parameter is the entity (Backbone.Model or Backbone.Collection)
-  // to bind the events from.
+  // The second parameter is the `entity` (Backbone.Model, Backbone.Collection or
+  // any object that has Backbone.Events mixed in) to bind the events from.
   //
   // The third parameter is a hash of { "event:name": "eventHandler" }
   // configuration. Multiple handlers can be separated by a space. A
@@ -408,7 +421,7 @@ module.exports = {
       if (!entity || !bindings) { return; }
   
       // type-check bindings
-      if (!_.isFunction(bindings) && !_.isObject(bindings)) {
+      if (!_.isObject(bindings)) {
         throw new Marionette.Error({
           message: 'Bindings must be an object or function.',
           url: 'marionette.functions.html#marionettebindentityevents'
@@ -416,9 +429,7 @@ module.exports = {
       }
   
       // allow the bindings to be a function
-      if (_.isFunction(bindings)) {
-        bindings = bindings.call(target);
-      }
+      bindings = Marionette._getValue(bindings, target);
   
       // iterate the bindings and bind them
       _.each(bindings, function(methods, evt) {
@@ -455,6 +466,9 @@ module.exports = {
   })(Marionette);
   
 
+  // Error
+  // -----
+  
   var errorProps = ['description', 'fileName', 'lineNumber', 'name', 'message', 'number'];
   
   Marionette.Error = Marionette.extend.call(Error, {
@@ -541,9 +555,9 @@ module.exports = {
     }
   });
   
-  // Marionette Controller
-  // ---------------------
-  //
+  // Controller
+  // ----------
+  
   // A multi-purpose object to use as a controller for
   // modules and routers, and as a mediator for workflow
   // and coordination of other objects, views, and more.
@@ -563,9 +577,8 @@ module.exports = {
   // Ensure it can trigger events with Backbone.Events
   _.extend(Marionette.Controller.prototype, Backbone.Events, {
     destroy: function() {
-      var args = slice.call(arguments);
-      this.triggerMethod.apply(this, ['before:destroy'].concat(args));
-      this.triggerMethod.apply(this, ['destroy'].concat(args));
+      Marionette._triggerMethod(this, 'before:destroy', arguments);
+      Marionette._triggerMethod(this, 'destroy', arguments);
   
       this.stopListening();
       this.off();
@@ -581,9 +594,9 @@ module.exports = {
   
   });
   
-  // Marionette Object
-  // ---------------------
-  //
+  // Object
+  // ------
+  
   // A Base Class that other Classes should descend from.
   // Object borrows many conventions and utilities from Backbone.
   Marionette.Object = function(options) {
@@ -597,7 +610,8 @@ module.exports = {
   // Object Methods
   // --------------
   
-  _.extend(Marionette.Object.prototype, {
+  // Ensure it can trigger events with Backbone.Events
+  _.extend(Marionette.Object.prototype, Backbone.Events, {
   
     //this is a noop method intended to be overridden by classes that extend from this base
     initialize: function() {},
@@ -615,137 +629,42 @@ module.exports = {
     // Proxy `getOption` to enable getting options from this or this.options by name.
     getOption: Marionette.proxyGetOption,
   
-    // Proxy `unbindEntityEvents` to enable binding view's events from another entity.
+    // Proxy `bindEntityEvents` to enable binding view's events from another entity.
     bindEntityEvents: Marionette.proxyBindEntityEvents,
   
     // Proxy `unbindEntityEvents` to enable unbinding view's events from another entity.
     unbindEntityEvents: Marionette.proxyUnbindEntityEvents
   });
   
-  // Ensure it can trigger events with Backbone.Events
-  _.extend(Marionette.Object.prototype, Backbone.Events);
-  
-  /* jshint maxcomplexity: 10, maxstatements: 29 */
+  /* jshint maxcomplexity: 16, maxstatements: 45, maxlen: 120 */
   
   // Region
   // ------
-  //
+  
   // Manage the visual regions of your composite application. See
   // http://lostechies.com/derickbailey/2011/12/12/composite-js-apps-regions-and-region-managers/
   
-  Marionette.Region = function(options) {
-    this.options = options || {};
-    this.el = this.getOption('el');
+  Marionette.Region = Marionette.Object.extend({
+    constructor: function (options) {
   
-    // Handle when this.el is passed in as a $ wrapped element.
-    this.el = this.el instanceof Backbone.$ ? this.el[0] : this.el;
+      // set options temporarily so that we can get `el`.
+      // options will be overriden by Object.constructor
+      this.options = options || {};
+      this.el = this.getOption('el');
   
-    if (!this.el) {
-      throw new Marionette.Error({
-        name: 'NoElError',
-        message: 'An "el" must be specified for a region.'
-      });
-    }
+      // Handle when this.el is passed in as a $ wrapped element.
+      this.el = this.el instanceof Backbone.$ ? this.el[0] : this.el;
   
-    this.$el = this.getEl(this.el);
-  
-    if (this.initialize) {
-      var args = slice.apply(arguments);
-      this.initialize.apply(this, args);
-    }
-  };
-  
-  
-  // Region Class methods
-  // -------------------
-  
-  _.extend(Marionette.Region, {
-  
-    // Build an instance of a region by passing in a configuration object
-    // and a default region class to use if none is specified in the config.
-    //
-    // The config object should either be a string as a jQuery DOM selector,
-    // a Region class directly, or an object literal that specifies both
-    // a selector and regionClass:
-    //
-    // ```js
-    // {
-    //   selector: "#foo",
-    //   regionClass: MyCustomRegion
-    // }
-    // ```
-    //
-    buildRegion: function(regionConfig, DefaultRegionClass) {
-      if (_.isString(regionConfig)) {
-        return this._buildRegionFromSelector(regionConfig, DefaultRegionClass);
+      if (!this.el) {
+        throw new Marionette.Error({
+          name: 'NoElError',
+          message: 'An "el" must be specified for a region.'
+        });
       }
   
-      if (regionConfig.selector || regionConfig.el || regionConfig.regionClass) {
-        return this._buildRegionFromObject(regionConfig, DefaultRegionClass);
-      }
-  
-      if (_.isFunction(regionConfig)) {
-        return this._buildRegionFromRegionClass(regionConfig);
-      }
-  
-      throw new Marionette.Error({
-        message: 'Improper region configuration type.',
-        url: 'marionette.region.html#region-configuration-types'
-      });
+      this.$el = this.getEl(this.el);
+      Marionette.Object.call(this, options);
     },
-  
-    // Build the region from a string selector like '#foo-region'
-    _buildRegionFromSelector: function(selector, DefaultRegionClass) {
-      return new DefaultRegionClass({ el: selector });
-    },
-  
-    // Build the region from a configuration object
-    // ```js
-    // { selector: '#foo', regionClass: FooRegion }
-    // ```
-    _buildRegionFromObject: function(regionConfig, DefaultRegionClass) {
-      var RegionClass = regionConfig.regionClass || DefaultRegionClass;
-      var options = _.omit(regionConfig, 'selector', 'regionClass');
-  
-      if (regionConfig.selector && !options.el) {
-        options.el = regionConfig.selector;
-      }
-  
-      var region = new RegionClass(options);
-  
-      // override the `getEl` function if we have a parentEl
-      // this must be overridden to ensure the selector is found
-      // on the first use of the region. if we try to assign the
-      // region's `el` to `parentEl.find(selector)` in the object
-      // literal to build the region, the element will not be
-      // guaranteed to be in the DOM already, and will cause problems
-      if (regionConfig.parentEl) {
-        region.getEl = function(el) {
-          if (_.isObject(el)) {
-            return Backbone.$(el);
-          }
-          var parentEl = regionConfig.parentEl;
-          if (_.isFunction(parentEl)) {
-            parentEl = parentEl();
-          }
-          return parentEl.find(el);
-        };
-      }
-  
-      return region;
-    },
-  
-    // Build the region directly from a given `RegionClass`
-    _buildRegionFromRegionClass: function(RegionClass) {
-      return new RegionClass();
-    }
-  
-  });
-  
-  // Region Instance Methods
-  // -----------------------
-  
-  _.extend(Marionette.Region.prototype, Backbone.Events, {
   
     // Displays a backbone view instance inside of the region.
     // Handles calling the `render` method for you. Reads content
@@ -756,9 +675,12 @@ module.exports = {
     // the old view being destroyed on show.
     // The `forceShow` option can be used to force a view to be
     // re-rendered if it's already shown in the region.
-  
     show: function(view, options){
-      this._ensureElement();
+      if (!this._ensureElement()) {
+        return;
+      }
+  
+      this._ensureViewIsIntact(view);
   
       var showOptions     = options || {};
       var isDifferentView = view !== this.currentView;
@@ -778,11 +700,21 @@ module.exports = {
       var _shouldShowView = isDifferentView || forceShow;
   
       if (isChangingView) {
-        this.triggerMethod('before:swapOut', this.currentView);
+        this.triggerMethod('before:swapOut', this.currentView, this, options);
+      }
+  
+      if (this.currentView) {
+        delete this.currentView._parent;
       }
   
       if (_shouldDestroyView) {
         this.empty();
+  
+      // A `destroy` event is attached to the clean up manually removed views.
+      // We need to detach this event when a new view is going to be shown as it
+      // is no longer relevant.
+      } else if (isChangingView && _shouldShowView) {
+        this.currentView.off('destroy', this.empty, this);
       }
   
       if (_shouldShowView) {
@@ -795,32 +727,68 @@ module.exports = {
         view.once('destroy', this.empty, this);
         view.render();
   
+        view._parent = this;
+  
         if (isChangingView) {
-          this.triggerMethod('before:swap', view);
+          this.triggerMethod('before:swap', view, this, options);
         }
   
-        this.triggerMethod('before:show', view);
-        Marionette.triggerMethodOn(view, 'before:show');
+        this.triggerMethod('before:show', view, this, options);
+        Marionette.triggerMethodOn(view, 'before:show', view, this, options);
+  
+        if (isChangingView) {
+          this.triggerMethod('swapOut', this.currentView, this, options);
+        }
+  
+        // An array of views that we're about to display
+        var attachedRegion = Marionette.isNodeAttached(this.el);
+  
+        // The views that we're about to attach to the document
+        // It's important that we prevent _getNestedViews from being executed unnecessarily
+        // as it's a potentially-slow method
+        var displayedViews = [];
+  
+        var triggerBeforeAttach = showOptions.triggerBeforeAttach || this.triggerBeforeAttach;
+        var triggerAttach = showOptions.triggerAttach || this.triggerAttach;
+  
+        if (attachedRegion && triggerBeforeAttach) {
+          displayedViews = this._displayedViews(view);
+          this._triggerAttach(displayedViews, 'before:');
+        }
   
         this.attachHtml(view);
-  
-        if (isChangingView) {
-          this.triggerMethod('swapOut', this.currentView);
-        }
-  
         this.currentView = view;
   
-        if (isChangingView) {
-          this.triggerMethod('swap', view);
+        if (attachedRegion && triggerAttach) {
+          displayedViews = this._displayedViews(view);
+          this._triggerAttach(displayedViews);
         }
   
-        this.triggerMethod('show', view);
-        Marionette.triggerMethodOn(view, 'show');
+        if (isChangingView) {
+          this.triggerMethod('swap', view, this, options);
+        }
+  
+        this.triggerMethod('show', view, this, options);
+        Marionette.triggerMethodOn(view, 'show', view, this, options);
   
         return this;
       }
   
       return this;
+    },
+  
+    triggerBeforeAttach: true,
+    triggerAttach: true,
+  
+    _triggerAttach: function(views, prefix) {
+      var eventName = (prefix || '') + 'attach';
+      _.each(views, function(view) {
+        Marionette.triggerMethodOn(view, eventName, view, this);
+      }, this);
+    },
+  
+    _displayedViews: function(view) {
+      return _.union([view], _.result(view, '_getNestedViews') || []);
     },
   
     _ensureElement: function(){
@@ -830,21 +798,43 @@ module.exports = {
       }
   
       if (!this.$el || this.$el.length === 0) {
-        throw new Marionette.Error('An "el" ' + this.$el.selector + ' must exist in DOM');
+        if (this.getOption('allowMissingEl')) {
+          return false;
+        } else {
+          throw new Marionette.Error('An "el" ' + this.$el.selector + ' must exist in DOM');
+        }
+      }
+      return true;
+    },
+  
+    _ensureViewIsIntact: function(view) {
+      if (!view) {
+        throw new Marionette.Error({
+          name: 'ViewNotValid',
+          message: 'The view passed is undefined and therefore invalid. You must pass a view instance to show.'
+        });
+      }
+  
+      if (view.isDestroyed) {
+        throw new Marionette.Error({
+          name: 'ViewDestroyedError',
+          message: 'View (cid: "' + view.cid + '") has already been destroyed and cannot be used.'
+        });
       }
     },
   
-    // Override this method to change how the region finds the
-    // DOM element that it manages. Return a jQuery selector object.
+    // Override this method to change how the region finds the DOM
+    // element that it manages. Return a jQuery selector object scoped
+    // to a provided parent el or the document if none exists.
     getEl: function(el) {
-      return Backbone.$(el);
+      return Backbone.$(el, Marionette._getValue(this.options.parentEl, this));
     },
   
     // Override this method to change how the new view is
     // appended to the `$el` that the region is managing
     attachHtml: function(view) {
-      // empty the node and append new view
-      this.el.innerHTML='';
+      this.$el.contents().detach();
+  
       this.el.appendChild(view.el);
     },
   
@@ -876,6 +866,10 @@ module.exports = {
         view.destroy();
       } else if (view.remove) {
         view.remove();
+  
+        // appending isDestroyed to raw Backbone View allows regions
+        // to throw a ViewDestroyedError for this view
+        view.isDestroyed = true;
       }
     },
   
@@ -908,152 +902,196 @@ module.exports = {
   
       delete this.$el;
       return this;
-    },
+    }
   
-    // Proxy `getOption` to enable getting options from this or this.options by name.
-    getOption: Marionette.proxyGetOption,
+  },
   
-    // import the `triggerMethod` to trigger events with corresponding
-    // methods if the method exists
-    triggerMethod: Marionette.triggerMethod
-  });
+  // Static Methods
+  {
   
-  // Copy the `extend` function used by Backbone's classes
-  Marionette.Region.extend = Marionette.extend;
-  
-  // Marionette.RegionManager
-  // ------------------------
-  //
-  // Manage one or more related `Marionette.Region` objects.
-  Marionette.RegionManager = (function(Marionette) {
-  
-    var RegionManager = Marionette.Controller.extend({
-      constructor: function(options) {
-        this._regions = {};
-        Marionette.Controller.call(this, options);
-      },
-  
-      // Add multiple regions using an object literal or a
-      // function that returns an object literal, where
-      // each key becomes the region name, and each value is
-      // the region definition.
-      addRegions: function(regionDefinitions, defaults) {
-        if (_.isFunction(regionDefinitions)) {
-          regionDefinitions = regionDefinitions.apply(this, arguments);
-        }
-  
-        var regions = {};
-  
-        _.each(regionDefinitions, function(definition, name) {
-          if (_.isString(definition)) {
-            definition = {selector: definition};
-          }
-  
-          if (definition.selector) {
-            definition = _.defaults({}, definition, defaults);
-          }
-  
-          var region = this.addRegion(name, definition);
-          regions[name] = region;
-        }, this);
-  
-        return regions;
-      },
-  
-      // Add an individual region to the region manager,
-      // and return the region instance
-      addRegion: function(name, definition) {
-        var region;
-  
-        if (definition instanceof Marionette.Region) {
-          region = definition;
-        } else {
-          region = Marionette.Region.buildRegion(definition, Marionette.Region);
-        }
-  
-        this.triggerMethod('before:add:region', name, region);
-  
-        this._store(name, region);
-  
-        this.triggerMethod('add:region', name, region);
-        return region;
-      },
-  
-      // Get a region by name
-      get: function(name) {
-        return this._regions[name];
-      },
-  
-      // Gets all the regions contained within
-      // the `regionManager` instance.
-      getRegions: function(){
-        return _.clone(this._regions);
-      },
-  
-      // Remove a region by name
-      removeRegion: function(name) {
-        var region = this._regions[name];
-        this._remove(name, region);
-  
-        return region;
-      },
-  
-      // Empty all regions in the region manager, and
-      // remove them
-      removeRegions: function() {
-        var regions = this.getRegions();
-        _.each(this._regions, function(region, name) {
-          this._remove(name, region);
-        }, this);
-  
-        return regions;
-      },
-  
-      // Empty all regions in the region manager, but
-      // leave them attached
-      emptyRegions: function() {
-        var regions = this.getRegions();
-        _.each(regions, function(region) {
-          region.empty();
-        }, this);
-  
-        return regions;
-      },
-  
-      // Destroy all regions and shut down the region
-      // manager entirely
-      destroy: function() {
-        this.removeRegions();
-        return Marionette.Controller.prototype.destroy.apply(this, arguments);
-      },
-  
-      // internal method to store regions
-      _store: function(name, region) {
-        this._regions[name] = region;
-        this._setLength();
-      },
-  
-      // internal method to remove a region
-      _remove: function(name, region) {
-        this.triggerMethod('before:remove:region', name, region);
-        region.empty();
-        region.stopListening();
-        delete this._regions[name];
-        this._setLength();
-        this.triggerMethod('remove:region', name, region);
-      },
-  
-      // set the number of regions current held
-      _setLength: function() {
-        this.length = _.size(this._regions);
+    // Build an instance of a region by passing in a configuration object
+    // and a default region class to use if none is specified in the config.
+    //
+    // The config object should either be a string as a jQuery DOM selector,
+    // a Region class directly, or an object literal that specifies a selector,
+    // a custom regionClass, and any options to be supplied to the region:
+    //
+    // ```js
+    // {
+    //   selector: "#foo",
+    //   regionClass: MyCustomRegion,
+    //   allowMissingEl: false
+    // }
+    // ```
+    //
+    buildRegion: function(regionConfig, DefaultRegionClass) {
+      if (_.isString(regionConfig)) {
+        return this._buildRegionFromSelector(regionConfig, DefaultRegionClass);
       }
   
-    });
+      if (regionConfig.selector || regionConfig.el || regionConfig.regionClass) {
+        return this._buildRegionFromObject(regionConfig, DefaultRegionClass);
+      }
   
-    Marionette.actAsCollection(RegionManager.prototype, '_regions');
+      if (_.isFunction(regionConfig)) {
+        return this._buildRegionFromRegionClass(regionConfig);
+      }
   
-    return RegionManager;
-  })(Marionette);
+      throw new Marionette.Error({
+        message: 'Improper region configuration type.',
+        url: 'marionette.region.html#region-configuration-types'
+      });
+    },
+  
+    // Build the region from a string selector like '#foo-region'
+    _buildRegionFromSelector: function(selector, DefaultRegionClass) {
+      return new DefaultRegionClass({ el: selector });
+    },
+  
+    // Build the region from a configuration object
+    // ```js
+    // { selector: '#foo', regionClass: FooRegion, allowMissingEl: false }
+    // ```
+    _buildRegionFromObject: function(regionConfig, DefaultRegionClass) {
+      var RegionClass = regionConfig.regionClass || DefaultRegionClass;
+      var options = _.omit(regionConfig, 'selector', 'regionClass');
+  
+      if (regionConfig.selector && !options.el) {
+        options.el = regionConfig.selector;
+      }
+  
+      return new RegionClass(options);
+    },
+  
+    // Build the region directly from a given `RegionClass`
+    _buildRegionFromRegionClass: function(RegionClass) {
+      return new RegionClass();
+    }
+  });
+  
+  // Region Manager
+  // --------------
+  
+  // Manage one or more related `Marionette.Region` objects.
+  Marionette.RegionManager = Marionette.Controller.extend({
+    constructor: function(options) {
+      this._regions = {};
+  
+      Marionette.Controller.call(this, options);
+  
+      this.addRegions(this.getOption('regions'));
+    },
+  
+    // Add multiple regions using an object literal or a
+    // function that returns an object literal, where
+    // each key becomes the region name, and each value is
+    // the region definition.
+    addRegions: function(regionDefinitions, defaults) {
+      regionDefinitions = Marionette._getValue(regionDefinitions, this, arguments);
+  
+      return _.reduce(regionDefinitions, function(regions, definition, name) {
+        if (_.isString(definition)) {
+          definition = {selector: definition};
+        }
+        if (definition.selector) {
+          definition = _.defaults({}, definition, defaults);
+        }
+  
+        regions[name] = this.addRegion(name, definition);
+        return regions;
+      }, {}, this);
+    },
+  
+    // Add an individual region to the region manager,
+    // and return the region instance
+    addRegion: function(name, definition) {
+      var region;
+  
+      if (definition instanceof Marionette.Region) {
+        region = definition;
+      } else {
+        region = Marionette.Region.buildRegion(definition, Marionette.Region);
+      }
+  
+      this.triggerMethod('before:add:region', name, region);
+  
+      region._parent = this;
+      this._store(name, region);
+  
+      this.triggerMethod('add:region', name, region);
+      return region;
+    },
+  
+    // Get a region by name
+    get: function(name) {
+      return this._regions[name];
+    },
+  
+    // Gets all the regions contained within
+    // the `regionManager` instance.
+    getRegions: function(){
+      return _.clone(this._regions);
+    },
+  
+    // Remove a region by name
+    removeRegion: function(name) {
+      var region = this._regions[name];
+      this._remove(name, region);
+  
+      return region;
+    },
+  
+    // Empty all regions in the region manager, and
+    // remove them
+    removeRegions: function() {
+      var regions = this.getRegions();
+      _.each(this._regions, function(region, name) {
+        this._remove(name, region);
+      }, this);
+  
+      return regions;
+    },
+  
+    // Empty all regions in the region manager, but
+    // leave them attached
+    emptyRegions: function() {
+      var regions = this.getRegions();
+      _.invoke(regions, 'empty');
+      return regions;
+    },
+  
+    // Destroy all regions and shut down the region
+    // manager entirely
+    destroy: function() {
+      this.removeRegions();
+      return Marionette.Controller.prototype.destroy.apply(this, arguments);
+    },
+  
+    // internal method to store regions
+    _store: function(name, region) {
+      this._regions[name] = region;
+      this._setLength();
+    },
+  
+    // internal method to remove a region
+    _remove: function(name, region) {
+      this.triggerMethod('before:remove:region', name, region);
+      region.empty();
+      region.stopListening();
+  
+      delete region._parent;
+      delete this._regions[name];
+      this._setLength();
+      this.triggerMethod('remove:region', name, region);
+    },
+  
+    // set the number of regions current held
+    _setLength: function() {
+      this.length = _.size(this._regions);
+    }
+  });
+  
+  Marionette.actAsCollection(Marionette.RegionManager.prototype, '_regions');
   
 
   // Template Cache
@@ -1094,7 +1132,7 @@ module.exports = {
     // `clear("#t1", "#t2", "...")`
     clear: function() {
       var i;
-      var args = slice.call(arguments);
+      var args = _.toArray(arguments);
       var length = args.length;
   
       if (length > 0) {
@@ -1172,12 +1210,7 @@ module.exports = {
         });
       }
   
-      var templateFunc;
-      if (typeof template === 'function') {
-        templateFunc = template;
-      } else {
-        templateFunc = Marionette.TemplateCache.get(template);
-      }
+      var templateFunc = _.isFunction(template) ? template : Marionette.TemplateCache.get(template);
   
       return templateFunc(data);
     }
@@ -1185,27 +1218,30 @@ module.exports = {
   
 
   /* jshint maxlen: 114, nonew: false */
-  // Marionette.View
-  // ---------------
+  // View
+  // ----
   
   // The core view class that other Marionette views extend from.
   Marionette.View = Backbone.View.extend({
+    isDestroyed: false,
   
     constructor: function(options) {
       _.bindAll(this, 'render');
+  
+      options = Marionette._getValue(options, this);
   
       // this exposes view options to the view initializer
       // this is a backfill since backbone removed the assignment
       // of this.options
       // at some point however this may be removed
-      this.options = _.extend({}, _.result(this, 'options'), _.isFunction(options) ? options.call(this) : options);
+      this.options = _.extend({}, _.result(this, 'options'), options);
   
       this._behaviors = Marionette.Behaviors(this);
   
       Backbone.View.apply(this, arguments);
   
       Marionette.MonitorDOMRefresh(this);
-      this.listenTo(this, 'show', this.onShowCalled);
+      this.on('show', this.onShowCalled);
     },
   
     // Get the template for this view
@@ -1219,7 +1255,7 @@ module.exports = {
     // Serialize a model by returning its attributes. Clones
     // the attributes to allow modification.
     serializeModel: function(model){
-      return model.toJSON.apply(model, slice.call(arguments, 1));
+      return model.toJSON.apply(model, _.rest(arguments));
     },
   
     // Mix in template helper methods. Looks for a
@@ -1230,18 +1266,15 @@ module.exports = {
     mixinTemplateHelpers: function(target) {
       target = target || {};
       var templateHelpers = this.getOption('templateHelpers');
-      if (_.isFunction(templateHelpers)) {
-        templateHelpers = templateHelpers.call(this);
-      }
+      templateHelpers = Marionette._getValue(templateHelpers, this);
       return _.extend(target, templateHelpers);
     },
   
     // normalize the keys of passed hash with the views `ui` selectors.
     // `{"@ui.foo": "bar"}`
     normalizeUIKeys: function(hash) {
-      var ui = _.result(this, 'ui');
       var uiBindings = _.result(this, '_uiBindings');
-      return Marionette.normalizeUIKeys(hash, uiBindings || ui);
+      return Marionette.normalizeUIKeys(hash, uiBindings || _.result(this, 'ui'));
     },
   
     // normalize the values of passed hash with the views `ui` selectors.
@@ -1257,18 +1290,15 @@ module.exports = {
     configureTriggers: function() {
       if (!this.triggers) { return; }
   
-      var triggerEvents = {};
-  
       // Allow `triggers` to be configured as a function
       var triggers = this.normalizeUIKeys(_.result(this, 'triggers'));
   
       // Configure the triggers, prevent default
       // action and stop propagation of DOM events
-      _.each(triggers, function(value, key) {
-        triggerEvents[key] = this._buildViewTrigger(value);
-      }, this);
-  
-      return triggerEvents;
+      return _.reduce(triggers, function(events, value, key) {
+        events[key] = this._buildViewTrigger(value);
+        return events;
+      }, {}, this);
     },
   
     // Overriding Backbone.View's delegateEvents to handle
@@ -1288,8 +1318,7 @@ module.exports = {
   
     // internal method to delegate DOM events and triggers
     _delegateDOMEvents: function(eventsArg) {
-      var events = eventsArg || this.events;
-      if (_.isFunction(events)) { events = events.call(this); }
+      var events = Marionette._getValue(eventsArg || this.events, this);
   
       // normalize ui keys
       events = this.normalizeUIKeys(events);
@@ -1311,8 +1340,7 @@ module.exports = {
     // Overriding Backbone.View's undelegateEvents to handle unbinding
     // the `triggers`, `modelEvents`, and `collectionEvents` config
     undelegateEvents: function() {
-      var args = slice.call(arguments);
-      Backbone.View.prototype.undelegateEvents.apply(this, args);
+      Backbone.View.prototype.undelegateEvents.apply(this, arguments);
   
       this.unbindEntityEvents(this.model, this.getOption('modelEvents'));
       this.unbindEntityEvents(this.collection, this.getOption('collectionEvents'));
@@ -1345,7 +1373,7 @@ module.exports = {
     destroy: function() {
       if (this.isDestroyed) { return; }
   
-      var args = slice.call(arguments);
+      var args = _.toArray(arguments);
   
       this.triggerMethod.apply(this, ['before:destroy'].concat(args));
   
@@ -1393,8 +1421,7 @@ module.exports = {
       this.ui = {};
   
       // bind each of the selectors
-      _.each(_.keys(bindings), function(key) {
-        var selector = bindings[key];
+      _.each(bindings, function(selector, key) {
         this.ui[key] = this.$(selector);
       }, this);
     },
@@ -1465,15 +1492,33 @@ module.exports = {
     // import the `triggerMethod` to trigger events with corresponding
     // methods if the method exists
     triggerMethod: function() {
-      var args = arguments;
-      var triggerMethod = Marionette.triggerMethod;
-  
-      var ret = triggerMethod.apply(this, args);
-      _.each(this._behaviors, function(b) {
-        triggerMethod.apply(b, args);
-      });
+      var triggerMethod = Marionette._triggerMethod;
+      var ret = triggerMethod(this, arguments);
+      var behaviors = this._behaviors;
+      // Use good ol' for as this is a very hot function
+      for (var i = 0, length = behaviors && behaviors.length; i < length; i++) {
+        triggerMethod(behaviors[i], arguments);
+      }
   
       return ret;
+    },
+  
+    // This method returns any views that are immediate
+    // children of this view
+    _getImmediateChildren: function() {
+      return [];
+    },
+  
+    // Returns an array of every nested view within this view
+    _getNestedViews: function() {
+      var children = this._getImmediateChildren();
+  
+      if (!children.length) { return children; }
+  
+      return _.reduce(children, function(memo, view) {
+        if (!view._getNestedViews) { return memo; }
+        return memo.concat(view._getNestedViews());
+      }, children);
     },
   
     // Imports the "normalizeMethods" to transform hashes of
@@ -1483,7 +1528,7 @@ module.exports = {
     // Proxy `getOption` to enable getting options from this or this.options by name.
     getOption: Marionette.proxyGetOption,
   
-    // Proxy `unbindEntityEvents` to enable binding view's events from another entity.
+    // Proxy `bindEntityEvents` to enable binding view's events from another entity.
     bindEntityEvents: Marionette.proxyBindEntityEvents,
   
     // Proxy `unbindEntityEvents` to enable unbinding view's events from another entity.
@@ -1512,21 +1557,27 @@ module.exports = {
     // You can override the `serializeData` method in your own view definition,
     // to provide custom serialization for your view's data.
     serializeData: function(){
-      var data = {};
+      if (!this.model && !this.collection) {
+        return {};
+      }
+  
+      var args = [this.model || this.collection];
+      if (arguments.length) {
+        args.push.apply(args, arguments);
+      }
   
       if (this.model) {
-        data = _.partial(this.serializeModel, this.model).apply(this, arguments);
+        return this.serializeModel.apply(this, args);
+      } else {
+        return {
+          items: this.serializeCollection.apply(this, args)
+        };
       }
-      else if (this.collection) {
-        data = { items: _.partial(this.serializeCollection, this.collection).apply(this, arguments) };
-      }
-  
-      return data;
     },
   
     // Serialize a collection by serializing each of its models.
     serializeCollection: function(collection){
-      return collection.toJSON.apply(collection, slice.call(arguments, 1));
+      return collection.toJSON.apply(collection, _.rest(arguments));
     },
   
     // Render the view, defaulting to underscore.js templates.
@@ -1593,14 +1644,6 @@ module.exports = {
       this.$el.html(html);
   
       return this;
-    },
-  
-    // Override the default destroy event to add a few
-    // more events that are triggered.
-    destroy: function() {
-      if (this.isDestroyed) { return; }
-  
-      return Marionette.View.prototype.destroy.apply(this, arguments);
     }
   });
   
@@ -1623,7 +1666,9 @@ module.exports = {
     // This will fallback onto appending childView's to the end.
     constructor: function(options){
       var initOptions = options || {};
-      this.sort = _.isUndefined(initOptions.sort) ? true : initOptions.sort;
+      if (_.isUndefined(this.sort)){
+        this.sort = _.isUndefined(initOptions.sort) ? true : initOptions.sort;
+      }
   
       this.once('render', this._initialEvents);
       this._initChildViewStorage();
@@ -1741,6 +1786,9 @@ module.exports = {
       }
     },
   
+    // Internal reference to what index a `emptyView` is.
+    _emptyViewIndex: -1,
+  
     // Internal method. Separated so that CompositeView can have
     // more control over events being triggered, around the rendering
     // process
@@ -1804,7 +1852,7 @@ module.exports = {
     },
   
     // Render and show the emptyView. Similar to addChild method
-    // but "child:added" events are not fired, and the event from
+    // but "add:child" events are not fired, and the event from
     // emptyView are not forwarded
     addEmptyView: function(child, EmptyView) {
   
@@ -1813,11 +1861,13 @@ module.exports = {
                             this.getOption('childViewOptions');
   
       if (_.isFunction(emptyViewOptions)){
-        emptyViewOptions = emptyViewOptions.call(this);
+        emptyViewOptions = emptyViewOptions.call(this, child, this._emptyViewIndex);
       }
   
       // build the empty view
       var view = this.buildChildView(child, EmptyView, emptyViewOptions);
+  
+      view._parent = this;
   
       // Proxy emptyView events
       this.proxyChildEvents(view);
@@ -1833,7 +1883,7 @@ module.exports = {
       this.children.add(view);
   
       // Render it and show it
-      this.renderChildView(view, -1);
+      this.renderChildView(view, this._emptyViewIndex);
   
       // call the 'show' method if the collection view
       // has already been shown
@@ -1867,9 +1917,7 @@ module.exports = {
     // in order to keep the children in sync with the collection.
     addChild: function(child, ChildView, index) {
       var childViewOptions = this.getOption('childViewOptions');
-      if (_.isFunction(childViewOptions)) {
-        childViewOptions = childViewOptions.call(this, child, index);
-      }
+      childViewOptions = Marionette._getValue(childViewOptions, this, [child, index]);
   
       var view = this.buildChildView(child, ChildView, childViewOptions);
   
@@ -1877,6 +1925,8 @@ module.exports = {
       this._updateIndices(view, true, index);
   
       this._addChildView(view, index);
+  
+      view._parent = this;
   
       return view;
     },
@@ -1891,22 +1941,14 @@ module.exports = {
       if (increment) {
         // assign the index to the view
         view._index = index;
+      }
   
-        // increment the index of views after this one
-        this.children.each(function (laterView) {
-          if (laterView._index >= view._index) {
-            laterView._index++;
-          }
-        });
-      }
-      else {
-        // decrement the index of views after this one
-        this.children.each(function (laterView) {
-          if (laterView._index >= view._index) {
-            laterView._index--;
-          }
-        });
-      }
+      // update the indexes of views after this one
+      this.children.each(function (laterView) {
+        if (laterView._index >= view._index) {
+          laterView._index += increment ? 1 : -1;
+        }
+      });
     },
   
   
@@ -1955,6 +1997,7 @@ module.exports = {
         if (view.destroy) { view.destroy(); }
         else if (view.remove) { view.remove(); }
   
+        delete view._parent;
         this.stopListening(view);
         this.children.remove(view);
         this.triggerMethod('remove:child', view);
@@ -2063,7 +2106,7 @@ module.exports = {
       // Forward all child view events through the parent,
       // prepending "childview:" to the event name
       this.listenTo(view, 'all', function() {
-        var args = slice.call(arguments);
+        var args = _.toArray(arguments);
         var rootEvent = args[0];
         var childEvents = this.normalizeMethods(_.result(this, 'childEvents'));
   
@@ -2077,6 +2120,10 @@ module.exports = {
   
         this.triggerMethod.apply(this, args);
       }, this);
+    },
+  
+    _getImmediateChildren: function() {
+      return _.values(this.children._views);
     }
   });
   
@@ -2125,17 +2172,10 @@ module.exports = {
     getChildView: function(child) {
       var childView = this.getOption('childView') || this.constructor;
   
-      if (!childView) {
-        throw new Marionette.Error({
-          name: 'NoChildViewError',
-          message: 'A "childView" must be specified'
-        });
-      }
-  
       return childView;
     },
   
-    // Serialize the collection for the view.
+    // Serialize the model for the view.
     // You can override the `serializeData` method in your own view
     // definition, to provide custom serialization for your view's data.
     serializeData: function() {
@@ -2148,9 +2188,7 @@ module.exports = {
       return data;
     },
   
-    // Renders the model once, and the collection once. Calling
-    // this again will tell the model's view to re-render itself
-    // but the collection will not re-render.
+    // Renders the model and the collection.
     render: function() {
       this._ensureViewIsIntact();
       this.isRendered = true;
@@ -2219,13 +2257,13 @@ module.exports = {
     // Overidden from CollectionView to ensure view is appended to
     // childViewContainer
     _insertAfter: function (childView) {
-      var $container = this.getChildViewContainer(this);
+      var $container = this.getChildViewContainer(this, childView);
       $container.append(childView.el);
     },
   
     // Internal method to ensure an `$childViewContainer` exists, for the
     // `attachHtml` method to use.
-    getChildViewContainer: function(containerView) {
+    getChildViewContainer: function(containerView, childView) {
       if ('$childViewContainer' in containerView) {
         return containerView.$childViewContainer;
       }
@@ -2234,7 +2272,7 @@ module.exports = {
       var childViewContainer = Marionette.getOption(containerView, 'childViewContainer');
       if (childViewContainer) {
   
-        var selector = _.isFunction(childViewContainer) ? childViewContainer.call(containerView) : childViewContainer;
+        var selector = Marionette._getValue(childViewContainer, containerView);
   
         if (selector.charAt(0) === '@' && containerView.ui) {
           container = containerView.ui[selector.substr(4)];
@@ -2265,8 +2303,8 @@ module.exports = {
     }
   });
   
-  // LayoutView
-  // ----------
+  // Layout View
+  // -----------
   
   // Used for managing application layoutViews, nested layoutViews and
   // multiple regions within an application or sub-application.
@@ -2349,11 +2387,9 @@ module.exports = {
   
     // internal method to build regions
     _buildRegions: function(regions) {
-      var that = this;
-  
       var defaults = {
         regionClass: this.getOption('regionClass'),
-        parentEl: function() { return that.$el; }
+        parentEl: _.partial(_.result, this, 'el')
       };
   
       return this.regionManager.addRegions(regions, defaults);
@@ -2365,19 +2401,13 @@ module.exports = {
       var regions;
       this._initRegionManager();
   
-      if (_.isFunction(this.regions)) {
-        regions = this.regions(options);
-      } else {
-        regions = this.regions || {};
-      }
+      regions = Marionette._getValue(this.regions, this, [options]) || {};
   
       // Enable users to define `regions` as instance options.
       var regionOptions = this.getOption.call(options, 'regions');
   
       // enable region options to be a function
-      if (_.isFunction(regionOptions)) {
-        regionOptions = regionOptions.call(this, options);
-      }
+      regionOptions = Marionette._getValue(regionOptions, this, [options]);
   
       _.extend(regions, regionOptions);
   
@@ -2391,10 +2421,7 @@ module.exports = {
     // Internal method to re-initialize all of the regions by updating the `el` that
     // they point to
     _reInitializeRegions: function() {
-      this.regionManager.emptyRegions();
-      this.regionManager.each(function(region) {
-        region.reset();
-      });
+      this.regionManager.invoke('reset');
     },
   
     // Enable easy overriding of the default `RegionManager`
@@ -2408,6 +2435,7 @@ module.exports = {
     // and all regions in it
     _initRegionManager: function() {
       this.regionManager = this.getRegionManager();
+      this.regionManager._parent = this;
   
       this.listenTo(this.regionManager, 'before:add:region', function(name) {
         this.triggerMethod('before:add:region', name);
@@ -2426,20 +2454,27 @@ module.exports = {
         delete this[name];
         this.triggerMethod('remove:region', name, region);
       });
+    },
+  
+    _getImmediateChildren: function() {
+      return _.chain(this.regionManager.getRegions())
+        .pluck('currentView')
+        .compact()
+        .value();
     }
   });
   
 
   // Behavior
-  // -----------
+  // --------
   
   // A Behavior is an isolated set of DOM /
   // user interactions that can be mixed into any View.
   // Behaviors allow you to blackbox View specific interactions
   // into portable logical chunks, keeping your views simple and your code DRY.
   
-  Marionette.Behavior = (function(_, Backbone) {
-    function Behavior(options, view) {
+  Marionette.Behavior = Marionette.Object.extend({
+    constructor: function(options, view) {
       // Setup reference to the view.
       // this comes in handle when a behavior
       // wants to directly talk up the chain
@@ -2448,57 +2483,31 @@ module.exports = {
       this.defaults = _.result(this, 'defaults') || {};
       this.options  = _.extend({}, this.defaults, options);
   
-      // proxy behavior $ method to the view
-      // this is useful for doing jquery DOM lookups
-      // scoped to behaviors view.
-      this.$ = function() {
-        return this.view.$.apply(this.view, arguments);
-      };
+      Marionette.Object.apply(this, arguments);
+    },
   
-      // Call the initialize method passing
-      // the arguments from the instance constructor
-      this.initialize.apply(this, arguments);
+    // proxy behavior $ method to the view
+    // this is useful for doing jquery DOM lookups
+    // scoped to behaviors view.
+    $: function() {
+      return this.view.$.apply(this.view, arguments);
+    },
+  
+    // Stops the behavior from listening to events.
+    // Overrides Object#destroy to prevent additional events from being triggered.
+    destroy: function() {
+      this.stopListening();
+    },
+  
+    proxyViewProperties: function (view) {
+      this.$el = view.$el;
+      this.el = view.el;
     }
-  
-    _.extend(Behavior.prototype, Backbone.Events, {
-      initialize: function() {},
-  
-      // stopListening to behavior `onListen` events.
-      destroy: function() {
-        this.stopListening();
-      },
-  
-      proxyViewProperties: function (view) {
-        this.$el = view.$el;
-        this.el = view.el;
-      },
-  
-      // import the `triggerMethod` to trigger events with corresponding
-      // methods if the method exists
-      triggerMethod: Marionette.triggerMethod,
-  
-      // Proxy `getOption` to enable getting options from this or this.options by name.
-      getOption: Marionette.proxyGetOption,
-  
-      // Proxy `unbindEntityEvents` to enable binding view's events from another entity.
-      bindEntityEvents: Marionette.proxyBindEntityEvents,
-  
-      // Proxy `unbindEntityEvents` to enable unbinding view's events from another entity.
-      unbindEntityEvents: Marionette.proxyUnbindEntityEvents
-    });
-  
-    // Borrow Backbones extend implementation
-    // this allows us to setup a proper
-    // inheritance pattern that follows suit
-    // with the rest of Marionette views.
-    Behavior.extend = Marionette.extend;
-  
-    return Behavior;
-  })(_, Backbone);
+  });
   
   /* jshint maxlen: 143 */
-  // Marionette.Behaviors
-  // --------
+  // Behaviors
+  // ---------
   
   // Behaviors is a utility class that takes care of
   // gluing your behavior instances to their given View.
@@ -2507,6 +2516,8 @@ module.exports = {
   // method for things to work properly.
   
   Marionette.Behaviors = (function(Marionette, _) {
+    // Borrow event splitter from Backbone
+    var delegateEventSplitter = /^(\S+)\s*(.*)$/;
   
     function Behaviors(view, behaviors) {
   
@@ -2533,12 +2544,12 @@ module.exports = {
   
       behaviorEvents: function(behaviorEvents, behaviors) {
         var _behaviorsEvents = {};
-        var viewUI = _.result(this, 'ui');
+        var viewUI = this._uiBindings || _.result(this, 'ui');
   
         _.each(behaviors, function(b, i) {
           var _events = {};
           var behaviorEvents = _.clone(_.result(b, 'events')) || {};
-          var behaviorUI = _.result(b, 'ui');
+          var behaviorUI = b._uiBindings || _.result(b, 'ui');
   
           // Construct an internal UI hash first using
           // the views UI hash and then the behaviors UI hash.
@@ -2551,21 +2562,25 @@ module.exports = {
           // a user to use the @ui. syntax.
           behaviorEvents = Marionette.normalizeUIKeys(behaviorEvents, ui);
   
-          _.each(_.keys(behaviorEvents), function(key) {
-            // Append white-space at the end of each key to prevent behavior key collisions.
-            // This is relying on the fact that backbone events considers "click .foo" the same as
-            // "click .foo ".
+          var j = 0;
+          _.each(behaviorEvents, function(behaviour, key) {
+            var match     = key.match(delegateEventSplitter);
   
-            // +2 is used because new Array(1) or 0 is "" and not " "
-            var whitespace = (new Array(i + 2)).join(' ');
-            var eventKey   = key + whitespace;
-            var handler    = _.isFunction(behaviorEvents[key]) ? behaviorEvents[key] : b[behaviorEvents[key]];
+            // Set event name to be namespaced using the view cid,
+            // the behavior index, and the behavior event index
+            // to generate a non colliding event namespace
+            // http://api.jquery.com/event.namespace/
+            var eventName = match[1] + '.' + [this.cid, i, j++, ' '].join(''),
+                selector  = match[2];
+  
+            var eventKey  = eventName + selector;
+            var handler   = _.isFunction(behaviour) ? behaviour : b[behaviour];
   
             _events[eventKey] = _.bind(handler, b);
-          });
+          }, this);
   
           _behaviorsEvents = _.extend(_behaviorsEvents, _events);
-        });
+        }, this);
   
         return _behaviorsEvents;
       }
@@ -2600,7 +2615,7 @@ module.exports = {
         }
   
         // Get behavior class can be either a flat object or a method
-        return _.isFunction(Behaviors.behaviorsLookup) ? Behaviors.behaviorsLookup.apply(this, arguments)[key] : Behaviors.behaviorsLookup[key];
+        return Marionette._getValue(Behaviors.behaviorsLookup, this, [options, key])[key];
       },
   
       // Iterate over the behaviors object, for each behavior
@@ -2651,7 +2666,7 @@ module.exports = {
   
         triggersHash = Marionette.normalizeUIKeys(triggersHash, ui);
   
-        _.each(triggersHash, _.partial(this._setHandlerForBehavior, behavior, i), this);
+        _.each(triggersHash, _.bind(this._setHandlerForBehavior, this, behavior, i));
       },
   
       // Internal method to create and assign the trigger handler for a given
@@ -2671,8 +2686,8 @@ module.exports = {
   })(Marionette, _);
   
 
-  // AppRouter
-  // ---------
+  // App Router
+  // ----------
   
   // Reduce the boilerplate code of handling route events
   // and then calling a single method on another object.
@@ -2692,9 +2707,9 @@ module.exports = {
   Marionette.AppRouter = Backbone.Router.extend({
   
     constructor: function(options) {
-      Backbone.Router.apply(this, arguments);
-  
       this.options = options || {};
+  
+      Backbone.Router.apply(this, arguments);
   
       var appRoutes = this.getOption('appRoutes');
       var controller = this._getController();
@@ -2712,11 +2727,10 @@ module.exports = {
     // process the route event and trigger the onRoute
     // method call, if it exists
     _processOnRoute: function(routeName, routeArgs) {
-      // find the path that matched
-      var routePath = _.invert(this.getOption('appRoutes'))[routeName];
-  
-      // make sure an onRoute is there, and call it
+      // make sure an onRoute before trying to call it
       if (_.isFunction(this.onRoute)) {
+        // find the path that matches the current route
+        var routePath = _.invert(this.getOption('appRoutes'))[routeName];
         this.onRoute(routeName, routePath, routeArgs);
       }
     },
@@ -2749,7 +2763,13 @@ module.exports = {
     },
   
     // Proxy `getOption` to enable getting options from this or this.options by name.
-    getOption: Marionette.proxyGetOption
+    getOption: Marionette.proxyGetOption,
+  
+    triggerMethod: Marionette.triggerMethod,
+  
+    bindEntityEvents: Marionette.proxyBindEntityEvents,
+  
+    unbindEntityEvents: Marionette.proxyUnbindEntityEvents
   });
   
   // Application
@@ -2758,20 +2778,15 @@ module.exports = {
   // Contain and manage the composite application as a whole.
   // Stores and starts up `Region` objects, includes an
   // event aggregator as `app.vent`
-  Marionette.Application = function(options) {
-    this.options = options;
-    this._initializeRegions(options);
-    this._initCallbacks = new Marionette.Callbacks();
-    this.submodules = {};
-    _.extend(this, options);
-    this._initChannel();
-    this.initialize.apply(this, arguments);
-  };
-  
-  _.extend(Marionette.Application.prototype, Backbone.Events, {
-    // Initialize is an empty function by default. Override it with your own
-    // initialization logic.
-    initialize: function() {},
+  Marionette.Application = Marionette.Object.extend({
+    constructor: function(options) {
+      this._initializeRegions(options);
+      this._initCallbacks = new Marionette.Callbacks();
+      this.submodules = {};
+      _.extend(this, options);
+      this._initChannel();
+      Marionette.Object.call(this, options);
+    },
   
     // Command execution, facilitated by Backbone.Wreqr.Commands
     execute: function() {
@@ -2837,9 +2852,7 @@ module.exports = {
       // Overwrite the module class if the user specifies one
       var ModuleClass = Marionette.Module.getClass(moduleDefinition);
   
-      // slice the args, and add this application object as the
-      // first argument of the array
-      var args = slice.call(arguments);
+      var args = _.toArray(arguments);
       args.unshift(this);
   
       // see the Marionette.Module object for more information
@@ -2879,23 +2892,24 @@ module.exports = {
     // Internal method to set up the region manager
     _initRegionManager: function() {
       this._regionManager = this.getRegionManager();
+      this._regionManager._parent = this;
   
-      this.listenTo(this._regionManager, 'before:add:region', function(name) {
-        this.triggerMethod('before:add:region', name);
+      this.listenTo(this._regionManager, 'before:add:region', function() {
+        Marionette._triggerMethod(this, 'before:add:region', arguments);
       });
   
       this.listenTo(this._regionManager, 'add:region', function(name, region) {
         this[name] = region;
-        this.triggerMethod('add:region', name, region);
+        Marionette._triggerMethod(this, 'add:region', arguments);
       });
   
-      this.listenTo(this._regionManager, 'before:remove:region', function(name) {
-        this.triggerMethod('before:remove:region', name);
+      this.listenTo(this._regionManager, 'before:remove:region', function() {
+        Marionette._triggerMethod(this, 'before:remove:region', arguments);
       });
   
-      this.listenTo(this._regionManager, 'remove:region', function(name, region) {
+      this.listenTo(this._regionManager, 'remove:region', function(name) {
         delete this[name];
-        this.triggerMethod('remove:region', name, region);
+        Marionette._triggerMethod(this, 'remove:region', arguments);
       });
     },
   
@@ -2906,18 +2920,8 @@ module.exports = {
       this.vent = _.result(this, 'vent') || this.channel.vent;
       this.commands = _.result(this, 'commands') || this.channel.commands;
       this.reqres = _.result(this, 'reqres') || this.channel.reqres;
-    },
-  
-    // import the `triggerMethod` to trigger events with corresponding
-    // methods if the method exists
-    triggerMethod: Marionette.triggerMethod,
-  
-    // Proxy `getOption` to enable getting options from this or this.options by name.
-    getOption: Marionette.proxyGetOption
+    }
   });
-  
-  // Copy the `extend` function used by Backbone's classes
-  Marionette.Application.extend = Marionette.extend;
   
   /* jshint maxparams: 9 */
   
@@ -3006,7 +3010,7 @@ module.exports = {
   
       // stop the sub-modules; depth-first, to make sure the
       // sub-modules are stopped / finalized before parents
-      _.each(this.submodules, function(mod) { mod.stop(); });
+      _.invoke(this.submodules, 'stop');
   
       // run the finalizers
       this._finalizerCallbacks.run(undefined, this);
@@ -3065,8 +3069,7 @@ module.exports = {
   
       // get the custom args passed in after the module definition and
       // get rid of the module name and definition function
-      var customArgs = slice.call(arguments);
-      customArgs.splice(0, 3);
+      var customArgs = _.rest(arguments, 3);
   
       // Split the module names and get the number of submodules.
       // i.e. an example module name of `Doge.Wow.Amaze` would
@@ -17883,6 +17886,1423 @@ return jQuery;
 
 }));
 
+},{}],"/Users/MM/Documents/Code/badmin/node_modules/underscore/underscore.js":[function(require,module,exports){
+//     Underscore.js 1.7.0
+//     http://underscorejs.org
+//     (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+//     Underscore may be freely distributed under the MIT license.
+
+(function() {
+
+  // Baseline setup
+  // --------------
+
+  // Establish the root object, `window` in the browser, or `exports` on the server.
+  var root = this;
+
+  // Save the previous value of the `_` variable.
+  var previousUnderscore = root._;
+
+  // Save bytes in the minified (but not gzipped) version:
+  var ArrayProto = Array.prototype, ObjProto = Object.prototype, FuncProto = Function.prototype;
+
+  // Create quick reference variables for speed access to core prototypes.
+  var
+    push             = ArrayProto.push,
+    slice            = ArrayProto.slice,
+    concat           = ArrayProto.concat,
+    toString         = ObjProto.toString,
+    hasOwnProperty   = ObjProto.hasOwnProperty;
+
+  // All **ECMAScript 5** native function implementations that we hope to use
+  // are declared here.
+  var
+    nativeIsArray      = Array.isArray,
+    nativeKeys         = Object.keys,
+    nativeBind         = FuncProto.bind;
+
+  // Create a safe reference to the Underscore object for use below.
+  var _ = function(obj) {
+    if (obj instanceof _) return obj;
+    if (!(this instanceof _)) return new _(obj);
+    this._wrapped = obj;
+  };
+
+  // Export the Underscore object for **Node.js**, with
+  // backwards-compatibility for the old `require()` API. If we're in
+  // the browser, add `_` as a global object.
+  if (typeof exports !== 'undefined') {
+    if (typeof module !== 'undefined' && module.exports) {
+      exports = module.exports = _;
+    }
+    exports._ = _;
+  } else {
+    root._ = _;
+  }
+
+  // Current version.
+  _.VERSION = '1.7.0';
+
+  // Internal function that returns an efficient (for current engines) version
+  // of the passed-in callback, to be repeatedly applied in other Underscore
+  // functions.
+  var createCallback = function(func, context, argCount) {
+    if (context === void 0) return func;
+    switch (argCount == null ? 3 : argCount) {
+      case 1: return function(value) {
+        return func.call(context, value);
+      };
+      case 2: return function(value, other) {
+        return func.call(context, value, other);
+      };
+      case 3: return function(value, index, collection) {
+        return func.call(context, value, index, collection);
+      };
+      case 4: return function(accumulator, value, index, collection) {
+        return func.call(context, accumulator, value, index, collection);
+      };
+    }
+    return function() {
+      return func.apply(context, arguments);
+    };
+  };
+
+  // A mostly-internal function to generate callbacks that can be applied
+  // to each element in a collection, returning the desired result — either
+  // identity, an arbitrary callback, a property matcher, or a property accessor.
+  _.iteratee = function(value, context, argCount) {
+    if (value == null) return _.identity;
+    if (_.isFunction(value)) return createCallback(value, context, argCount);
+    if (_.isObject(value)) return _.matches(value);
+    return _.property(value);
+  };
+
+  // Collection Functions
+  // --------------------
+
+  // The cornerstone, an `each` implementation, aka `forEach`.
+  // Handles raw objects in addition to array-likes. Treats all
+  // sparse array-likes as if they were dense.
+  _.each = _.forEach = function(obj, iteratee, context) {
+    if (obj == null) return obj;
+    iteratee = createCallback(iteratee, context);
+    var i, length = obj.length;
+    if (length === +length) {
+      for (i = 0; i < length; i++) {
+        iteratee(obj[i], i, obj);
+      }
+    } else {
+      var keys = _.keys(obj);
+      for (i = 0, length = keys.length; i < length; i++) {
+        iteratee(obj[keys[i]], keys[i], obj);
+      }
+    }
+    return obj;
+  };
+
+  // Return the results of applying the iteratee to each element.
+  _.map = _.collect = function(obj, iteratee, context) {
+    if (obj == null) return [];
+    iteratee = _.iteratee(iteratee, context);
+    var keys = obj.length !== +obj.length && _.keys(obj),
+        length = (keys || obj).length,
+        results = Array(length),
+        currentKey;
+    for (var index = 0; index < length; index++) {
+      currentKey = keys ? keys[index] : index;
+      results[index] = iteratee(obj[currentKey], currentKey, obj);
+    }
+    return results;
+  };
+
+  var reduceError = 'Reduce of empty array with no initial value';
+
+  // **Reduce** builds up a single result from a list of values, aka `inject`,
+  // or `foldl`.
+  _.reduce = _.foldl = _.inject = function(obj, iteratee, memo, context) {
+    if (obj == null) obj = [];
+    iteratee = createCallback(iteratee, context, 4);
+    var keys = obj.length !== +obj.length && _.keys(obj),
+        length = (keys || obj).length,
+        index = 0, currentKey;
+    if (arguments.length < 3) {
+      if (!length) throw new TypeError(reduceError);
+      memo = obj[keys ? keys[index++] : index++];
+    }
+    for (; index < length; index++) {
+      currentKey = keys ? keys[index] : index;
+      memo = iteratee(memo, obj[currentKey], currentKey, obj);
+    }
+    return memo;
+  };
+
+  // The right-associative version of reduce, also known as `foldr`.
+  _.reduceRight = _.foldr = function(obj, iteratee, memo, context) {
+    if (obj == null) obj = [];
+    iteratee = createCallback(iteratee, context, 4);
+    var keys = obj.length !== + obj.length && _.keys(obj),
+        index = (keys || obj).length,
+        currentKey;
+    if (arguments.length < 3) {
+      if (!index) throw new TypeError(reduceError);
+      memo = obj[keys ? keys[--index] : --index];
+    }
+    while (index--) {
+      currentKey = keys ? keys[index] : index;
+      memo = iteratee(memo, obj[currentKey], currentKey, obj);
+    }
+    return memo;
+  };
+
+  // Return the first value which passes a truth test. Aliased as `detect`.
+  _.find = _.detect = function(obj, predicate, context) {
+    var result;
+    predicate = _.iteratee(predicate, context);
+    _.some(obj, function(value, index, list) {
+      if (predicate(value, index, list)) {
+        result = value;
+        return true;
+      }
+    });
+    return result;
+  };
+
+  // Return all the elements that pass a truth test.
+  // Aliased as `select`.
+  _.filter = _.select = function(obj, predicate, context) {
+    var results = [];
+    if (obj == null) return results;
+    predicate = _.iteratee(predicate, context);
+    _.each(obj, function(value, index, list) {
+      if (predicate(value, index, list)) results.push(value);
+    });
+    return results;
+  };
+
+  // Return all the elements for which a truth test fails.
+  _.reject = function(obj, predicate, context) {
+    return _.filter(obj, _.negate(_.iteratee(predicate)), context);
+  };
+
+  // Determine whether all of the elements match a truth test.
+  // Aliased as `all`.
+  _.every = _.all = function(obj, predicate, context) {
+    if (obj == null) return true;
+    predicate = _.iteratee(predicate, context);
+    var keys = obj.length !== +obj.length && _.keys(obj),
+        length = (keys || obj).length,
+        index, currentKey;
+    for (index = 0; index < length; index++) {
+      currentKey = keys ? keys[index] : index;
+      if (!predicate(obj[currentKey], currentKey, obj)) return false;
+    }
+    return true;
+  };
+
+  // Determine if at least one element in the object matches a truth test.
+  // Aliased as `any`.
+  _.some = _.any = function(obj, predicate, context) {
+    if (obj == null) return false;
+    predicate = _.iteratee(predicate, context);
+    var keys = obj.length !== +obj.length && _.keys(obj),
+        length = (keys || obj).length,
+        index, currentKey;
+    for (index = 0; index < length; index++) {
+      currentKey = keys ? keys[index] : index;
+      if (predicate(obj[currentKey], currentKey, obj)) return true;
+    }
+    return false;
+  };
+
+  // Determine if the array or object contains a given value (using `===`).
+  // Aliased as `include`.
+  _.contains = _.include = function(obj, target) {
+    if (obj == null) return false;
+    if (obj.length !== +obj.length) obj = _.values(obj);
+    return _.indexOf(obj, target) >= 0;
+  };
+
+  // Invoke a method (with arguments) on every item in a collection.
+  _.invoke = function(obj, method) {
+    var args = slice.call(arguments, 2);
+    var isFunc = _.isFunction(method);
+    return _.map(obj, function(value) {
+      return (isFunc ? method : value[method]).apply(value, args);
+    });
+  };
+
+  // Convenience version of a common use case of `map`: fetching a property.
+  _.pluck = function(obj, key) {
+    return _.map(obj, _.property(key));
+  };
+
+  // Convenience version of a common use case of `filter`: selecting only objects
+  // containing specific `key:value` pairs.
+  _.where = function(obj, attrs) {
+    return _.filter(obj, _.matches(attrs));
+  };
+
+  // Convenience version of a common use case of `find`: getting the first object
+  // containing specific `key:value` pairs.
+  _.findWhere = function(obj, attrs) {
+    return _.find(obj, _.matches(attrs));
+  };
+
+  // Return the maximum element (or element-based computation).
+  _.max = function(obj, iteratee, context) {
+    var result = -Infinity, lastComputed = -Infinity,
+        value, computed;
+    if (iteratee == null && obj != null) {
+      obj = obj.length === +obj.length ? obj : _.values(obj);
+      for (var i = 0, length = obj.length; i < length; i++) {
+        value = obj[i];
+        if (value > result) {
+          result = value;
+        }
+      }
+    } else {
+      iteratee = _.iteratee(iteratee, context);
+      _.each(obj, function(value, index, list) {
+        computed = iteratee(value, index, list);
+        if (computed > lastComputed || computed === -Infinity && result === -Infinity) {
+          result = value;
+          lastComputed = computed;
+        }
+      });
+    }
+    return result;
+  };
+
+  // Return the minimum element (or element-based computation).
+  _.min = function(obj, iteratee, context) {
+    var result = Infinity, lastComputed = Infinity,
+        value, computed;
+    if (iteratee == null && obj != null) {
+      obj = obj.length === +obj.length ? obj : _.values(obj);
+      for (var i = 0, length = obj.length; i < length; i++) {
+        value = obj[i];
+        if (value < result) {
+          result = value;
+        }
+      }
+    } else {
+      iteratee = _.iteratee(iteratee, context);
+      _.each(obj, function(value, index, list) {
+        computed = iteratee(value, index, list);
+        if (computed < lastComputed || computed === Infinity && result === Infinity) {
+          result = value;
+          lastComputed = computed;
+        }
+      });
+    }
+    return result;
+  };
+
+  // Shuffle a collection, using the modern version of the
+  // [Fisher-Yates shuffle](http://en.wikipedia.org/wiki/Fisher–Yates_shuffle).
+  _.shuffle = function(obj) {
+    var set = obj && obj.length === +obj.length ? obj : _.values(obj);
+    var length = set.length;
+    var shuffled = Array(length);
+    for (var index = 0, rand; index < length; index++) {
+      rand = _.random(0, index);
+      if (rand !== index) shuffled[index] = shuffled[rand];
+      shuffled[rand] = set[index];
+    }
+    return shuffled;
+  };
+
+  // Sample **n** random values from a collection.
+  // If **n** is not specified, returns a single random element.
+  // The internal `guard` argument allows it to work with `map`.
+  _.sample = function(obj, n, guard) {
+    if (n == null || guard) {
+      if (obj.length !== +obj.length) obj = _.values(obj);
+      return obj[_.random(obj.length - 1)];
+    }
+    return _.shuffle(obj).slice(0, Math.max(0, n));
+  };
+
+  // Sort the object's values by a criterion produced by an iteratee.
+  _.sortBy = function(obj, iteratee, context) {
+    iteratee = _.iteratee(iteratee, context);
+    return _.pluck(_.map(obj, function(value, index, list) {
+      return {
+        value: value,
+        index: index,
+        criteria: iteratee(value, index, list)
+      };
+    }).sort(function(left, right) {
+      var a = left.criteria;
+      var b = right.criteria;
+      if (a !== b) {
+        if (a > b || a === void 0) return 1;
+        if (a < b || b === void 0) return -1;
+      }
+      return left.index - right.index;
+    }), 'value');
+  };
+
+  // An internal function used for aggregate "group by" operations.
+  var group = function(behavior) {
+    return function(obj, iteratee, context) {
+      var result = {};
+      iteratee = _.iteratee(iteratee, context);
+      _.each(obj, function(value, index) {
+        var key = iteratee(value, index, obj);
+        behavior(result, value, key);
+      });
+      return result;
+    };
+  };
+
+  // Groups the object's values by a criterion. Pass either a string attribute
+  // to group by, or a function that returns the criterion.
+  _.groupBy = group(function(result, value, key) {
+    if (_.has(result, key)) result[key].push(value); else result[key] = [value];
+  });
+
+  // Indexes the object's values by a criterion, similar to `groupBy`, but for
+  // when you know that your index values will be unique.
+  _.indexBy = group(function(result, value, key) {
+    result[key] = value;
+  });
+
+  // Counts instances of an object that group by a certain criterion. Pass
+  // either a string attribute to count by, or a function that returns the
+  // criterion.
+  _.countBy = group(function(result, value, key) {
+    if (_.has(result, key)) result[key]++; else result[key] = 1;
+  });
+
+  // Use a comparator function to figure out the smallest index at which
+  // an object should be inserted so as to maintain order. Uses binary search.
+  _.sortedIndex = function(array, obj, iteratee, context) {
+    iteratee = _.iteratee(iteratee, context, 1);
+    var value = iteratee(obj);
+    var low = 0, high = array.length;
+    while (low < high) {
+      var mid = low + high >>> 1;
+      if (iteratee(array[mid]) < value) low = mid + 1; else high = mid;
+    }
+    return low;
+  };
+
+  // Safely create a real, live array from anything iterable.
+  _.toArray = function(obj) {
+    if (!obj) return [];
+    if (_.isArray(obj)) return slice.call(obj);
+    if (obj.length === +obj.length) return _.map(obj, _.identity);
+    return _.values(obj);
+  };
+
+  // Return the number of elements in an object.
+  _.size = function(obj) {
+    if (obj == null) return 0;
+    return obj.length === +obj.length ? obj.length : _.keys(obj).length;
+  };
+
+  // Split a collection into two arrays: one whose elements all satisfy the given
+  // predicate, and one whose elements all do not satisfy the predicate.
+  _.partition = function(obj, predicate, context) {
+    predicate = _.iteratee(predicate, context);
+    var pass = [], fail = [];
+    _.each(obj, function(value, key, obj) {
+      (predicate(value, key, obj) ? pass : fail).push(value);
+    });
+    return [pass, fail];
+  };
+
+  // Array Functions
+  // ---------------
+
+  // Get the first element of an array. Passing **n** will return the first N
+  // values in the array. Aliased as `head` and `take`. The **guard** check
+  // allows it to work with `_.map`.
+  _.first = _.head = _.take = function(array, n, guard) {
+    if (array == null) return void 0;
+    if (n == null || guard) return array[0];
+    if (n < 0) return [];
+    return slice.call(array, 0, n);
+  };
+
+  // Returns everything but the last entry of the array. Especially useful on
+  // the arguments object. Passing **n** will return all the values in
+  // the array, excluding the last N. The **guard** check allows it to work with
+  // `_.map`.
+  _.initial = function(array, n, guard) {
+    return slice.call(array, 0, Math.max(0, array.length - (n == null || guard ? 1 : n)));
+  };
+
+  // Get the last element of an array. Passing **n** will return the last N
+  // values in the array. The **guard** check allows it to work with `_.map`.
+  _.last = function(array, n, guard) {
+    if (array == null) return void 0;
+    if (n == null || guard) return array[array.length - 1];
+    return slice.call(array, Math.max(array.length - n, 0));
+  };
+
+  // Returns everything but the first entry of the array. Aliased as `tail` and `drop`.
+  // Especially useful on the arguments object. Passing an **n** will return
+  // the rest N values in the array. The **guard**
+  // check allows it to work with `_.map`.
+  _.rest = _.tail = _.drop = function(array, n, guard) {
+    return slice.call(array, n == null || guard ? 1 : n);
+  };
+
+  // Trim out all falsy values from an array.
+  _.compact = function(array) {
+    return _.filter(array, _.identity);
+  };
+
+  // Internal implementation of a recursive `flatten` function.
+  var flatten = function(input, shallow, strict, output) {
+    if (shallow && _.every(input, _.isArray)) {
+      return concat.apply(output, input);
+    }
+    for (var i = 0, length = input.length; i < length; i++) {
+      var value = input[i];
+      if (!_.isArray(value) && !_.isArguments(value)) {
+        if (!strict) output.push(value);
+      } else if (shallow) {
+        push.apply(output, value);
+      } else {
+        flatten(value, shallow, strict, output);
+      }
+    }
+    return output;
+  };
+
+  // Flatten out an array, either recursively (by default), or just one level.
+  _.flatten = function(array, shallow) {
+    return flatten(array, shallow, false, []);
+  };
+
+  // Return a version of the array that does not contain the specified value(s).
+  _.without = function(array) {
+    return _.difference(array, slice.call(arguments, 1));
+  };
+
+  // Produce a duplicate-free version of the array. If the array has already
+  // been sorted, you have the option of using a faster algorithm.
+  // Aliased as `unique`.
+  _.uniq = _.unique = function(array, isSorted, iteratee, context) {
+    if (array == null) return [];
+    if (!_.isBoolean(isSorted)) {
+      context = iteratee;
+      iteratee = isSorted;
+      isSorted = false;
+    }
+    if (iteratee != null) iteratee = _.iteratee(iteratee, context);
+    var result = [];
+    var seen = [];
+    for (var i = 0, length = array.length; i < length; i++) {
+      var value = array[i];
+      if (isSorted) {
+        if (!i || seen !== value) result.push(value);
+        seen = value;
+      } else if (iteratee) {
+        var computed = iteratee(value, i, array);
+        if (_.indexOf(seen, computed) < 0) {
+          seen.push(computed);
+          result.push(value);
+        }
+      } else if (_.indexOf(result, value) < 0) {
+        result.push(value);
+      }
+    }
+    return result;
+  };
+
+  // Produce an array that contains the union: each distinct element from all of
+  // the passed-in arrays.
+  _.union = function() {
+    return _.uniq(flatten(arguments, true, true, []));
+  };
+
+  // Produce an array that contains every item shared between all the
+  // passed-in arrays.
+  _.intersection = function(array) {
+    if (array == null) return [];
+    var result = [];
+    var argsLength = arguments.length;
+    for (var i = 0, length = array.length; i < length; i++) {
+      var item = array[i];
+      if (_.contains(result, item)) continue;
+      for (var j = 1; j < argsLength; j++) {
+        if (!_.contains(arguments[j], item)) break;
+      }
+      if (j === argsLength) result.push(item);
+    }
+    return result;
+  };
+
+  // Take the difference between one array and a number of other arrays.
+  // Only the elements present in just the first array will remain.
+  _.difference = function(array) {
+    var rest = flatten(slice.call(arguments, 1), true, true, []);
+    return _.filter(array, function(value){
+      return !_.contains(rest, value);
+    });
+  };
+
+  // Zip together multiple lists into a single array -- elements that share
+  // an index go together.
+  _.zip = function(array) {
+    if (array == null) return [];
+    var length = _.max(arguments, 'length').length;
+    var results = Array(length);
+    for (var i = 0; i < length; i++) {
+      results[i] = _.pluck(arguments, i);
+    }
+    return results;
+  };
+
+  // Converts lists into objects. Pass either a single array of `[key, value]`
+  // pairs, or two parallel arrays of the same length -- one of keys, and one of
+  // the corresponding values.
+  _.object = function(list, values) {
+    if (list == null) return {};
+    var result = {};
+    for (var i = 0, length = list.length; i < length; i++) {
+      if (values) {
+        result[list[i]] = values[i];
+      } else {
+        result[list[i][0]] = list[i][1];
+      }
+    }
+    return result;
+  };
+
+  // Return the position of the first occurrence of an item in an array,
+  // or -1 if the item is not included in the array.
+  // If the array is large and already in sort order, pass `true`
+  // for **isSorted** to use binary search.
+  _.indexOf = function(array, item, isSorted) {
+    if (array == null) return -1;
+    var i = 0, length = array.length;
+    if (isSorted) {
+      if (typeof isSorted == 'number') {
+        i = isSorted < 0 ? Math.max(0, length + isSorted) : isSorted;
+      } else {
+        i = _.sortedIndex(array, item);
+        return array[i] === item ? i : -1;
+      }
+    }
+    for (; i < length; i++) if (array[i] === item) return i;
+    return -1;
+  };
+
+  _.lastIndexOf = function(array, item, from) {
+    if (array == null) return -1;
+    var idx = array.length;
+    if (typeof from == 'number') {
+      idx = from < 0 ? idx + from + 1 : Math.min(idx, from + 1);
+    }
+    while (--idx >= 0) if (array[idx] === item) return idx;
+    return -1;
+  };
+
+  // Generate an integer Array containing an arithmetic progression. A port of
+  // the native Python `range()` function. See
+  // [the Python documentation](http://docs.python.org/library/functions.html#range).
+  _.range = function(start, stop, step) {
+    if (arguments.length <= 1) {
+      stop = start || 0;
+      start = 0;
+    }
+    step = step || 1;
+
+    var length = Math.max(Math.ceil((stop - start) / step), 0);
+    var range = Array(length);
+
+    for (var idx = 0; idx < length; idx++, start += step) {
+      range[idx] = start;
+    }
+
+    return range;
+  };
+
+  // Function (ahem) Functions
+  // ------------------
+
+  // Reusable constructor function for prototype setting.
+  var Ctor = function(){};
+
+  // Create a function bound to a given object (assigning `this`, and arguments,
+  // optionally). Delegates to **ECMAScript 5**'s native `Function.bind` if
+  // available.
+  _.bind = function(func, context) {
+    var args, bound;
+    if (nativeBind && func.bind === nativeBind) return nativeBind.apply(func, slice.call(arguments, 1));
+    if (!_.isFunction(func)) throw new TypeError('Bind must be called on a function');
+    args = slice.call(arguments, 2);
+    bound = function() {
+      if (!(this instanceof bound)) return func.apply(context, args.concat(slice.call(arguments)));
+      Ctor.prototype = func.prototype;
+      var self = new Ctor;
+      Ctor.prototype = null;
+      var result = func.apply(self, args.concat(slice.call(arguments)));
+      if (_.isObject(result)) return result;
+      return self;
+    };
+    return bound;
+  };
+
+  // Partially apply a function by creating a version that has had some of its
+  // arguments pre-filled, without changing its dynamic `this` context. _ acts
+  // as a placeholder, allowing any combination of arguments to be pre-filled.
+  _.partial = function(func) {
+    var boundArgs = slice.call(arguments, 1);
+    return function() {
+      var position = 0;
+      var args = boundArgs.slice();
+      for (var i = 0, length = args.length; i < length; i++) {
+        if (args[i] === _) args[i] = arguments[position++];
+      }
+      while (position < arguments.length) args.push(arguments[position++]);
+      return func.apply(this, args);
+    };
+  };
+
+  // Bind a number of an object's methods to that object. Remaining arguments
+  // are the method names to be bound. Useful for ensuring that all callbacks
+  // defined on an object belong to it.
+  _.bindAll = function(obj) {
+    var i, length = arguments.length, key;
+    if (length <= 1) throw new Error('bindAll must be passed function names');
+    for (i = 1; i < length; i++) {
+      key = arguments[i];
+      obj[key] = _.bind(obj[key], obj);
+    }
+    return obj;
+  };
+
+  // Memoize an expensive function by storing its results.
+  _.memoize = function(func, hasher) {
+    var memoize = function(key) {
+      var cache = memoize.cache;
+      var address = hasher ? hasher.apply(this, arguments) : key;
+      if (!_.has(cache, address)) cache[address] = func.apply(this, arguments);
+      return cache[address];
+    };
+    memoize.cache = {};
+    return memoize;
+  };
+
+  // Delays a function for the given number of milliseconds, and then calls
+  // it with the arguments supplied.
+  _.delay = function(func, wait) {
+    var args = slice.call(arguments, 2);
+    return setTimeout(function(){
+      return func.apply(null, args);
+    }, wait);
+  };
+
+  // Defers a function, scheduling it to run after the current call stack has
+  // cleared.
+  _.defer = function(func) {
+    return _.delay.apply(_, [func, 1].concat(slice.call(arguments, 1)));
+  };
+
+  // Returns a function, that, when invoked, will only be triggered at most once
+  // during a given window of time. Normally, the throttled function will run
+  // as much as it can, without ever going more than once per `wait` duration;
+  // but if you'd like to disable the execution on the leading edge, pass
+  // `{leading: false}`. To disable execution on the trailing edge, ditto.
+  _.throttle = function(func, wait, options) {
+    var context, args, result;
+    var timeout = null;
+    var previous = 0;
+    if (!options) options = {};
+    var later = function() {
+      previous = options.leading === false ? 0 : _.now();
+      timeout = null;
+      result = func.apply(context, args);
+      if (!timeout) context = args = null;
+    };
+    return function() {
+      var now = _.now();
+      if (!previous && options.leading === false) previous = now;
+      var remaining = wait - (now - previous);
+      context = this;
+      args = arguments;
+      if (remaining <= 0 || remaining > wait) {
+        clearTimeout(timeout);
+        timeout = null;
+        previous = now;
+        result = func.apply(context, args);
+        if (!timeout) context = args = null;
+      } else if (!timeout && options.trailing !== false) {
+        timeout = setTimeout(later, remaining);
+      }
+      return result;
+    };
+  };
+
+  // Returns a function, that, as long as it continues to be invoked, will not
+  // be triggered. The function will be called after it stops being called for
+  // N milliseconds. If `immediate` is passed, trigger the function on the
+  // leading edge, instead of the trailing.
+  _.debounce = function(func, wait, immediate) {
+    var timeout, args, context, timestamp, result;
+
+    var later = function() {
+      var last = _.now() - timestamp;
+
+      if (last < wait && last > 0) {
+        timeout = setTimeout(later, wait - last);
+      } else {
+        timeout = null;
+        if (!immediate) {
+          result = func.apply(context, args);
+          if (!timeout) context = args = null;
+        }
+      }
+    };
+
+    return function() {
+      context = this;
+      args = arguments;
+      timestamp = _.now();
+      var callNow = immediate && !timeout;
+      if (!timeout) timeout = setTimeout(later, wait);
+      if (callNow) {
+        result = func.apply(context, args);
+        context = args = null;
+      }
+
+      return result;
+    };
+  };
+
+  // Returns the first function passed as an argument to the second,
+  // allowing you to adjust arguments, run code before and after, and
+  // conditionally execute the original function.
+  _.wrap = function(func, wrapper) {
+    return _.partial(wrapper, func);
+  };
+
+  // Returns a negated version of the passed-in predicate.
+  _.negate = function(predicate) {
+    return function() {
+      return !predicate.apply(this, arguments);
+    };
+  };
+
+  // Returns a function that is the composition of a list of functions, each
+  // consuming the return value of the function that follows.
+  _.compose = function() {
+    var args = arguments;
+    var start = args.length - 1;
+    return function() {
+      var i = start;
+      var result = args[start].apply(this, arguments);
+      while (i--) result = args[i].call(this, result);
+      return result;
+    };
+  };
+
+  // Returns a function that will only be executed after being called N times.
+  _.after = function(times, func) {
+    return function() {
+      if (--times < 1) {
+        return func.apply(this, arguments);
+      }
+    };
+  };
+
+  // Returns a function that will only be executed before being called N times.
+  _.before = function(times, func) {
+    var memo;
+    return function() {
+      if (--times > 0) {
+        memo = func.apply(this, arguments);
+      } else {
+        func = null;
+      }
+      return memo;
+    };
+  };
+
+  // Returns a function that will be executed at most one time, no matter how
+  // often you call it. Useful for lazy initialization.
+  _.once = _.partial(_.before, 2);
+
+  // Object Functions
+  // ----------------
+
+  // Retrieve the names of an object's properties.
+  // Delegates to **ECMAScript 5**'s native `Object.keys`
+  _.keys = function(obj) {
+    if (!_.isObject(obj)) return [];
+    if (nativeKeys) return nativeKeys(obj);
+    var keys = [];
+    for (var key in obj) if (_.has(obj, key)) keys.push(key);
+    return keys;
+  };
+
+  // Retrieve the values of an object's properties.
+  _.values = function(obj) {
+    var keys = _.keys(obj);
+    var length = keys.length;
+    var values = Array(length);
+    for (var i = 0; i < length; i++) {
+      values[i] = obj[keys[i]];
+    }
+    return values;
+  };
+
+  // Convert an object into a list of `[key, value]` pairs.
+  _.pairs = function(obj) {
+    var keys = _.keys(obj);
+    var length = keys.length;
+    var pairs = Array(length);
+    for (var i = 0; i < length; i++) {
+      pairs[i] = [keys[i], obj[keys[i]]];
+    }
+    return pairs;
+  };
+
+  // Invert the keys and values of an object. The values must be serializable.
+  _.invert = function(obj) {
+    var result = {};
+    var keys = _.keys(obj);
+    for (var i = 0, length = keys.length; i < length; i++) {
+      result[obj[keys[i]]] = keys[i];
+    }
+    return result;
+  };
+
+  // Return a sorted list of the function names available on the object.
+  // Aliased as `methods`
+  _.functions = _.methods = function(obj) {
+    var names = [];
+    for (var key in obj) {
+      if (_.isFunction(obj[key])) names.push(key);
+    }
+    return names.sort();
+  };
+
+  // Extend a given object with all the properties in passed-in object(s).
+  _.extend = function(obj) {
+    if (!_.isObject(obj)) return obj;
+    var source, prop;
+    for (var i = 1, length = arguments.length; i < length; i++) {
+      source = arguments[i];
+      for (prop in source) {
+        if (hasOwnProperty.call(source, prop)) {
+            obj[prop] = source[prop];
+        }
+      }
+    }
+    return obj;
+  };
+
+  // Return a copy of the object only containing the whitelisted properties.
+  _.pick = function(obj, iteratee, context) {
+    var result = {}, key;
+    if (obj == null) return result;
+    if (_.isFunction(iteratee)) {
+      iteratee = createCallback(iteratee, context);
+      for (key in obj) {
+        var value = obj[key];
+        if (iteratee(value, key, obj)) result[key] = value;
+      }
+    } else {
+      var keys = concat.apply([], slice.call(arguments, 1));
+      obj = new Object(obj);
+      for (var i = 0, length = keys.length; i < length; i++) {
+        key = keys[i];
+        if (key in obj) result[key] = obj[key];
+      }
+    }
+    return result;
+  };
+
+   // Return a copy of the object without the blacklisted properties.
+  _.omit = function(obj, iteratee, context) {
+    if (_.isFunction(iteratee)) {
+      iteratee = _.negate(iteratee);
+    } else {
+      var keys = _.map(concat.apply([], slice.call(arguments, 1)), String);
+      iteratee = function(value, key) {
+        return !_.contains(keys, key);
+      };
+    }
+    return _.pick(obj, iteratee, context);
+  };
+
+  // Fill in a given object with default properties.
+  _.defaults = function(obj) {
+    if (!_.isObject(obj)) return obj;
+    for (var i = 1, length = arguments.length; i < length; i++) {
+      var source = arguments[i];
+      for (var prop in source) {
+        if (obj[prop] === void 0) obj[prop] = source[prop];
+      }
+    }
+    return obj;
+  };
+
+  // Create a (shallow-cloned) duplicate of an object.
+  _.clone = function(obj) {
+    if (!_.isObject(obj)) return obj;
+    return _.isArray(obj) ? obj.slice() : _.extend({}, obj);
+  };
+
+  // Invokes interceptor with the obj, and then returns obj.
+  // The primary purpose of this method is to "tap into" a method chain, in
+  // order to perform operations on intermediate results within the chain.
+  _.tap = function(obj, interceptor) {
+    interceptor(obj);
+    return obj;
+  };
+
+  // Internal recursive comparison function for `isEqual`.
+  var eq = function(a, b, aStack, bStack) {
+    // Identical objects are equal. `0 === -0`, but they aren't identical.
+    // See the [Harmony `egal` proposal](http://wiki.ecmascript.org/doku.php?id=harmony:egal).
+    if (a === b) return a !== 0 || 1 / a === 1 / b;
+    // A strict comparison is necessary because `null == undefined`.
+    if (a == null || b == null) return a === b;
+    // Unwrap any wrapped objects.
+    if (a instanceof _) a = a._wrapped;
+    if (b instanceof _) b = b._wrapped;
+    // Compare `[[Class]]` names.
+    var className = toString.call(a);
+    if (className !== toString.call(b)) return false;
+    switch (className) {
+      // Strings, numbers, regular expressions, dates, and booleans are compared by value.
+      case '[object RegExp]':
+      // RegExps are coerced to strings for comparison (Note: '' + /a/i === '/a/i')
+      case '[object String]':
+        // Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
+        // equivalent to `new String("5")`.
+        return '' + a === '' + b;
+      case '[object Number]':
+        // `NaN`s are equivalent, but non-reflexive.
+        // Object(NaN) is equivalent to NaN
+        if (+a !== +a) return +b !== +b;
+        // An `egal` comparison is performed for other numeric values.
+        return +a === 0 ? 1 / +a === 1 / b : +a === +b;
+      case '[object Date]':
+      case '[object Boolean]':
+        // Coerce dates and booleans to numeric primitive values. Dates are compared by their
+        // millisecond representations. Note that invalid dates with millisecond representations
+        // of `NaN` are not equivalent.
+        return +a === +b;
+    }
+    if (typeof a != 'object' || typeof b != 'object') return false;
+    // Assume equality for cyclic structures. The algorithm for detecting cyclic
+    // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
+    var length = aStack.length;
+    while (length--) {
+      // Linear search. Performance is inversely proportional to the number of
+      // unique nested structures.
+      if (aStack[length] === a) return bStack[length] === b;
+    }
+    // Objects with different constructors are not equivalent, but `Object`s
+    // from different frames are.
+    var aCtor = a.constructor, bCtor = b.constructor;
+    if (
+      aCtor !== bCtor &&
+      // Handle Object.create(x) cases
+      'constructor' in a && 'constructor' in b &&
+      !(_.isFunction(aCtor) && aCtor instanceof aCtor &&
+        _.isFunction(bCtor) && bCtor instanceof bCtor)
+    ) {
+      return false;
+    }
+    // Add the first object to the stack of traversed objects.
+    aStack.push(a);
+    bStack.push(b);
+    var size, result;
+    // Recursively compare objects and arrays.
+    if (className === '[object Array]') {
+      // Compare array lengths to determine if a deep comparison is necessary.
+      size = a.length;
+      result = size === b.length;
+      if (result) {
+        // Deep compare the contents, ignoring non-numeric properties.
+        while (size--) {
+          if (!(result = eq(a[size], b[size], aStack, bStack))) break;
+        }
+      }
+    } else {
+      // Deep compare objects.
+      var keys = _.keys(a), key;
+      size = keys.length;
+      // Ensure that both objects contain the same number of properties before comparing deep equality.
+      result = _.keys(b).length === size;
+      if (result) {
+        while (size--) {
+          // Deep compare each member
+          key = keys[size];
+          if (!(result = _.has(b, key) && eq(a[key], b[key], aStack, bStack))) break;
+        }
+      }
+    }
+    // Remove the first object from the stack of traversed objects.
+    aStack.pop();
+    bStack.pop();
+    return result;
+  };
+
+  // Perform a deep comparison to check if two objects are equal.
+  _.isEqual = function(a, b) {
+    return eq(a, b, [], []);
+  };
+
+  // Is a given array, string, or object empty?
+  // An "empty" object has no enumerable own-properties.
+  _.isEmpty = function(obj) {
+    if (obj == null) return true;
+    if (_.isArray(obj) || _.isString(obj) || _.isArguments(obj)) return obj.length === 0;
+    for (var key in obj) if (_.has(obj, key)) return false;
+    return true;
+  };
+
+  // Is a given value a DOM element?
+  _.isElement = function(obj) {
+    return !!(obj && obj.nodeType === 1);
+  };
+
+  // Is a given value an array?
+  // Delegates to ECMA5's native Array.isArray
+  _.isArray = nativeIsArray || function(obj) {
+    return toString.call(obj) === '[object Array]';
+  };
+
+  // Is a given variable an object?
+  _.isObject = function(obj) {
+    var type = typeof obj;
+    return type === 'function' || type === 'object' && !!obj;
+  };
+
+  // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp.
+  _.each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp'], function(name) {
+    _['is' + name] = function(obj) {
+      return toString.call(obj) === '[object ' + name + ']';
+    };
+  });
+
+  // Define a fallback version of the method in browsers (ahem, IE), where
+  // there isn't any inspectable "Arguments" type.
+  if (!_.isArguments(arguments)) {
+    _.isArguments = function(obj) {
+      return _.has(obj, 'callee');
+    };
+  }
+
+  // Optimize `isFunction` if appropriate. Work around an IE 11 bug.
+  if (typeof /./ !== 'function') {
+    _.isFunction = function(obj) {
+      return typeof obj == 'function' || false;
+    };
+  }
+
+  // Is a given object a finite number?
+  _.isFinite = function(obj) {
+    return isFinite(obj) && !isNaN(parseFloat(obj));
+  };
+
+  // Is the given value `NaN`? (NaN is the only number which does not equal itself).
+  _.isNaN = function(obj) {
+    return _.isNumber(obj) && obj !== +obj;
+  };
+
+  // Is a given value a boolean?
+  _.isBoolean = function(obj) {
+    return obj === true || obj === false || toString.call(obj) === '[object Boolean]';
+  };
+
+  // Is a given value equal to null?
+  _.isNull = function(obj) {
+    return obj === null;
+  };
+
+  // Is a given variable undefined?
+  _.isUndefined = function(obj) {
+    return obj === void 0;
+  };
+
+  // Shortcut function for checking if an object has a given property directly
+  // on itself (in other words, not on a prototype).
+  _.has = function(obj, key) {
+    return obj != null && hasOwnProperty.call(obj, key);
+  };
+
+  // Utility Functions
+  // -----------------
+
+  // Run Underscore.js in *noConflict* mode, returning the `_` variable to its
+  // previous owner. Returns a reference to the Underscore object.
+  _.noConflict = function() {
+    root._ = previousUnderscore;
+    return this;
+  };
+
+  // Keep the identity function around for default iteratees.
+  _.identity = function(value) {
+    return value;
+  };
+
+  _.constant = function(value) {
+    return function() {
+      return value;
+    };
+  };
+
+  _.noop = function(){};
+
+  _.property = function(key) {
+    return function(obj) {
+      return obj[key];
+    };
+  };
+
+  // Returns a predicate for checking whether an object has a given set of `key:value` pairs.
+  _.matches = function(attrs) {
+    var pairs = _.pairs(attrs), length = pairs.length;
+    return function(obj) {
+      if (obj == null) return !length;
+      obj = new Object(obj);
+      for (var i = 0; i < length; i++) {
+        var pair = pairs[i], key = pair[0];
+        if (pair[1] !== obj[key] || !(key in obj)) return false;
+      }
+      return true;
+    };
+  };
+
+  // Run a function **n** times.
+  _.times = function(n, iteratee, context) {
+    var accum = Array(Math.max(0, n));
+    iteratee = createCallback(iteratee, context, 1);
+    for (var i = 0; i < n; i++) accum[i] = iteratee(i);
+    return accum;
+  };
+
+  // Return a random integer between min and max (inclusive).
+  _.random = function(min, max) {
+    if (max == null) {
+      max = min;
+      min = 0;
+    }
+    return min + Math.floor(Math.random() * (max - min + 1));
+  };
+
+  // A (possibly faster) way to get the current timestamp as an integer.
+  _.now = Date.now || function() {
+    return new Date().getTime();
+  };
+
+   // List of HTML entities for escaping.
+  var escapeMap = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#x27;',
+    '`': '&#x60;'
+  };
+  var unescapeMap = _.invert(escapeMap);
+
+  // Functions for escaping and unescaping strings to/from HTML interpolation.
+  var createEscaper = function(map) {
+    var escaper = function(match) {
+      return map[match];
+    };
+    // Regexes for identifying a key that needs to be escaped
+    var source = '(?:' + _.keys(map).join('|') + ')';
+    var testRegexp = RegExp(source);
+    var replaceRegexp = RegExp(source, 'g');
+    return function(string) {
+      string = string == null ? '' : '' + string;
+      return testRegexp.test(string) ? string.replace(replaceRegexp, escaper) : string;
+    };
+  };
+  _.escape = createEscaper(escapeMap);
+  _.unescape = createEscaper(unescapeMap);
+
+  // If the value of the named `property` is a function then invoke it with the
+  // `object` as context; otherwise, return it.
+  _.result = function(object, property) {
+    if (object == null) return void 0;
+    var value = object[property];
+    return _.isFunction(value) ? object[property]() : value;
+  };
+
+  // Generate a unique integer id (unique within the entire client session).
+  // Useful for temporary DOM ids.
+  var idCounter = 0;
+  _.uniqueId = function(prefix) {
+    var id = ++idCounter + '';
+    return prefix ? prefix + id : id;
+  };
+
+  // By default, Underscore uses ERB-style template delimiters, change the
+  // following template settings to use alternative delimiters.
+  _.templateSettings = {
+    evaluate    : /<%([\s\S]+?)%>/g,
+    interpolate : /<%=([\s\S]+?)%>/g,
+    escape      : /<%-([\s\S]+?)%>/g
+  };
+
+  // When customizing `templateSettings`, if you don't want to define an
+  // interpolation, evaluation or escaping regex, we need one that is
+  // guaranteed not to match.
+  var noMatch = /(.)^/;
+
+  // Certain characters need to be escaped so that they can be put into a
+  // string literal.
+  var escapes = {
+    "'":      "'",
+    '\\':     '\\',
+    '\r':     'r',
+    '\n':     'n',
+    '\u2028': 'u2028',
+    '\u2029': 'u2029'
+  };
+
+  var escaper = /\\|'|\r|\n|\u2028|\u2029/g;
+
+  var escapeChar = function(match) {
+    return '\\' + escapes[match];
+  };
+
+  // JavaScript micro-templating, similar to John Resig's implementation.
+  // Underscore templating handles arbitrary delimiters, preserves whitespace,
+  // and correctly escapes quotes within interpolated code.
+  // NB: `oldSettings` only exists for backwards compatibility.
+  _.template = function(text, settings, oldSettings) {
+    if (!settings && oldSettings) settings = oldSettings;
+    settings = _.defaults({}, settings, _.templateSettings);
+
+    // Combine delimiters into one regular expression via alternation.
+    var matcher = RegExp([
+      (settings.escape || noMatch).source,
+      (settings.interpolate || noMatch).source,
+      (settings.evaluate || noMatch).source
+    ].join('|') + '|$', 'g');
+
+    // Compile the template source, escaping string literals appropriately.
+    var index = 0;
+    var source = "__p+='";
+    text.replace(matcher, function(match, escape, interpolate, evaluate, offset) {
+      source += text.slice(index, offset).replace(escaper, escapeChar);
+      index = offset + match.length;
+
+      if (escape) {
+        source += "'+\n((__t=(" + escape + "))==null?'':_.escape(__t))+\n'";
+      } else if (interpolate) {
+        source += "'+\n((__t=(" + interpolate + "))==null?'':__t)+\n'";
+      } else if (evaluate) {
+        source += "';\n" + evaluate + "\n__p+='";
+      }
+
+      // Adobe VMs need the match returned to produce the correct offest.
+      return match;
+    });
+    source += "';\n";
+
+    // If a variable is not specified, place data values in local scope.
+    if (!settings.variable) source = 'with(obj||{}){\n' + source + '}\n';
+
+    source = "var __t,__p='',__j=Array.prototype.join," +
+      "print=function(){__p+=__j.call(arguments,'');};\n" +
+      source + 'return __p;\n';
+
+    try {
+      var render = new Function(settings.variable || 'obj', '_', source);
+    } catch (e) {
+      e.source = source;
+      throw e;
+    }
+
+    var template = function(data) {
+      return render.call(this, data, _);
+    };
+
+    // Provide the compiled source as a convenience for precompilation.
+    var argument = settings.variable || 'obj';
+    template.source = 'function(' + argument + '){\n' + source + '}';
+
+    return template;
+  };
+
+  // Add a "chain" function. Start chaining a wrapped Underscore object.
+  _.chain = function(obj) {
+    var instance = _(obj);
+    instance._chain = true;
+    return instance;
+  };
+
+  // OOP
+  // ---------------
+  // If Underscore is called as a function, it returns a wrapped object that
+  // can be used OO-style. This wrapper holds altered versions of all the
+  // underscore functions. Wrapped objects may be chained.
+
+  // Helper function to continue chaining intermediate results.
+  var result = function(obj) {
+    return this._chain ? _(obj).chain() : obj;
+  };
+
+  // Add your own custom functions to the Underscore object.
+  _.mixin = function(obj) {
+    _.each(_.functions(obj), function(name) {
+      var func = _[name] = obj[name];
+      _.prototype[name] = function() {
+        var args = [this._wrapped];
+        push.apply(args, arguments);
+        return result.call(this, func.apply(_, args));
+      };
+    });
+  };
+
+  // Add all of the Underscore functions to the wrapper object.
+  _.mixin(_);
+
+  // Add all mutator Array functions to the wrapper.
+  _.each(['pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'], function(name) {
+    var method = ArrayProto[name];
+    _.prototype[name] = function() {
+      var obj = this._wrapped;
+      method.apply(obj, arguments);
+      if ((name === 'shift' || name === 'splice') && obj.length === 0) delete obj[0];
+      return result.call(this, obj);
+    };
+  });
+
+  // Add all accessor Array functions to the wrapper.
+  _.each(['concat', 'join', 'slice'], function(name) {
+    var method = ArrayProto[name];
+    _.prototype[name] = function() {
+      return result.call(this, method.apply(this._wrapped, arguments));
+    };
+  });
+
+  // Extracts the result from a wrapped and chained object.
+  _.prototype.value = function() {
+    return this._wrapped;
+  };
+
+  // AMD registration happens at the end for compatibility with AMD loaders
+  // that may not enforce next-turn semantics on modules. Even though general
+  // practice for AMD registration is to be anonymous, underscore registers
+  // as a named module because, like jQuery, it is a base library that is
+  // popular enough to be bundled in a third party lib, but not be part of
+  // an AMD load request. Those cases could generate an error when an
+  // anonymous define() is called outside of a loader request.
+  if (typeof define === 'function' && define.amd) {
+    define('underscore', [], function() {
+      return _;
+    });
+  }
+}.call(this));
+
 },{}],"/Users/MM/Documents/Code/badmin/src/js/collections/addresses.js":[function(require,module,exports){
 'use strict';
 
@@ -17903,7 +19323,7 @@ module.exports = Backbone.Collection.extend({
         return address.get('id');
     }
 });
-},{"../models/address.js":"/Users/MM/Documents/Code/badmin/src/js/models/address.js","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/backbone/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/collections/notifications.js":[function(require,module,exports){
+},{"../models/address.js":"/Users/MM/Documents/Code/badmin/src/js/models/address.js","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/collections/notifications.js":[function(require,module,exports){
 'use strict';
 
 var $ = require('jquery');
@@ -17916,7 +19336,7 @@ var NotificationModel = require('../models/notification.js');
 module.exports = Backbone.Collection.extend({
     model: NotificationModel
 });
-},{"../models/notification.js":"/Users/MM/Documents/Code/badmin/src/js/models/notification.js","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/backbone/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/models/address.js":[function(require,module,exports){
+},{"../models/notification.js":"/Users/MM/Documents/Code/badmin/src/js/models/notification.js","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/models/address.js":[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
@@ -17924,15 +19344,13 @@ var Backbone = require('backbone');
 var Marionette = require('backbone.marionette');
 
 module.exports = Backbone.Model.extend({
-    defaults: {
-
-    },
+    defaults: {},
     urlRoot : window.TheApp.config.api + '/addresses',
     useFixtures: true,
     fixture: 'ajaxfixtures/address',
     fixtureType: 'json'
 });
-},{"backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/backbone/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/models/notification.js":[function(require,module,exports){
+},{"backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/models/notification.js":[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
@@ -17940,11 +19358,9 @@ var Backbone = require('backbone');
 var Marionette = require('backbone.marionette');
 
 module.exports = Backbone.Model.extend({
-    defaults: {
-
-    }
+    defaults: {}
 });
-},{"backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/backbone/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/models/user.js":[function(require,module,exports){
+},{"backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/models/user.js":[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
@@ -17960,64 +19376,41 @@ module.exports = Backbone.Model.extend({
     urlRoot : window.TheApp.config.api + '/users',
     isUserLoggedIn: function(callback) {
         var self = this;
-        
-        $.ajax({
-            url: window.TheApp.config.api + '/auth/user',
-            xhrFields: { withCredentials: true },
-            error: function (userObj) {
+
+
+        /**
+         * Enable this if you'd like
+         */
+        /*TheApp.app.service.makeRequest(
+            '/auth/user',
+            'get',
+            {},
+            true,
+            function (userObj) {
                 var model = self.set(userObj);
                 callback(false, model);
             },
-            success: function (userObj) {
+            function (userObj) {
                 var model = self.set(userObj);
                 callback(true, model);
             }
-        });
+        );*/
+
+        // Remove this once you set up your own user API
+        var userJson = {
+            id: 1,
+            email: "hello@psitsmike.com",
+            username: "BobMarley",
+            image: "images/pup.png"
+        };
+        var userModel = self.set(userJson);
+        callback(true, userModel);
     },
     logout: function() {
-
-        $.ajax({
-            method: 'get',
-            url: window.TheApp.config.api + '/auth/logout',
-            xhrFields: { withCredentials: true },
-            error: function (response) {
-                TheApp.app.notifier.addMessage({
-                    'type': 'error',
-                    'message': 'Error logging out'
-                });
-            },
-            success: function (response) {
-                window.location.reload();
-            }
-        });
-    },
-
-    tryLogin: function(username, password) {
-        var self = this;
-
-        $.ajax({
-            method: 'post',
-            url: window.TheApp.config.api + '/auth/login',
-            xhrFields: { withCredentials: true },
-            data: {
-                username: username,
-                password: password
-            },
-            error: function (userObj) {
-                TheApp.app.notifier.addMessage({
-                    'type': 'error',
-                    'message': 'Invalid login'
-                });
-            },
-            success: function (userObj) {
-                var model = self.set(userObj);
-                TheApp.app.user = model;
-                TheApp.app.vent.trigger('login:success');
-            }
-        });
+        // Use this!
     }
 });
-},{"backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/backbone/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/plugins/backbone.cors.js":[function(require,module,exports){
+},{"backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/plugins/backbone.cors.js":[function(require,module,exports){
 'use strict';
 
 var Backbone = require('backbone')
@@ -18109,8 +19502,6 @@ Backbone.$ = $;
 var AddressesView = require('./views/addresses/view-all.js');
 var AddressView = require('./views/addresses/view-single.js');
 var AddressModel = require('./models/address.js');
-var NotificationModel = require('./models/notification.js');
-var LoginView = require('./views/login/view.js');
 var HomeView = require('./views/home/view.js');
 
 module.exports = Backbone.Router.extend({
@@ -18119,19 +19510,19 @@ module.exports = Backbone.Router.extend({
         'addresses/create': 'addressesCreate',
         'addresses/:id': 'addressesById',
         'addresses': 'addresses',
-        'login': 'login',
+        '*path': 'notFound'
     },
     activateMenu: function(className) {
-        $('.menu').children().removeClass('active');
+        $('#main-nav').children().removeClass('active');
         $(className).addClass('active');
     },
     home: function() {
+        this.activateMenu('.navbar-brand');
 
-        this.activateMenu('.menu-addresses');
         TheApp.app.viewManager.currentViewRegion.show( new HomeView() );
     },
     addressesCreate: function (id) {
-        this.activateMenu('.menu-address-create, .menu-addresses');
+        this.activateMenu('#nav-addresses');
 
         TheApp.app.viewManager.currentViewRegion.show( new AddressView({
             'model': new AddressModel(),
@@ -18139,7 +19530,7 @@ module.exports = Backbone.Router.extend({
         }));
     },
     addressesById: function (id) {
-        this.activateMenu('.menu-addresses');
+        this.activateMenu('#nav-addresses');
 
         var AddressModelById = new AddressModel({'id': id});
         AddressModelById.fetch({
@@ -18154,17 +19545,53 @@ module.exports = Backbone.Router.extend({
         });
     },
     addresses: function () {
-        this.activateMenu('.menu-addresses');
+        this.activateMenu('#nav-addresses');
+
         TheApp.app.viewManager.currentViewRegion.show( new AddressesView() );
     },
     notFound: function () {
-        //alert('not found');
-        //Boomrat.app.appView.contentRegion.show(new Boomrat.Views.Error({
-        //    code: 404
-        //}));
+        alert('View not found');
     }
 });
-},{"./models/address.js":"/Users/MM/Documents/Code/badmin/src/js/models/address.js","./models/notification.js":"/Users/MM/Documents/Code/badmin/src/js/models/notification.js","./views/addresses/view-all.js":"/Users/MM/Documents/Code/badmin/src/js/views/addresses/view-all.js","./views/addresses/view-single.js":"/Users/MM/Documents/Code/badmin/src/js/views/addresses/view-single.js","./views/home/view.js":"/Users/MM/Documents/Code/badmin/src/js/views/home/view.js","./views/login/view.js":"/Users/MM/Documents/Code/badmin/src/js/views/login/view.js","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/backbone/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/templates/addresses/view-all-row.hbs":[function(require,module,exports){
+},{"./models/address.js":"/Users/MM/Documents/Code/badmin/src/js/models/address.js","./views/addresses/view-all.js":"/Users/MM/Documents/Code/badmin/src/js/views/addresses/view-all.js","./views/addresses/view-single.js":"/Users/MM/Documents/Code/badmin/src/js/views/addresses/view-single.js","./views/home/view.js":"/Users/MM/Documents/Code/badmin/src/js/views/home/view.js","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/service.js":[function(require,module,exports){
+'use strict';
+
+var _ = require('underscore');
+var Backbone = require('backbone');
+var $ = require('jquery');
+Backbone.$ = $;
+
+module.exports = {
+    makeRequest: function (api_path, http_method, data, async, onSuccess, onError) {
+        data = data || {};
+        async = async || true;
+        return $.ajax({
+            url: window.TheApp.config.api + api_path,
+            method: http_method,
+            xhrFields: {
+                withCredentials: true
+            },
+            async: async,
+            data: data,
+            success: function (response) {
+                if (! onSuccess) {
+                    alert('AJAX success callback is not defined');
+                    return;
+                }
+                onSuccess(response);
+            },
+            error: function (response) {
+                if (! onError) {
+                    alert('AJAX error callback is not defined');
+                    return;
+                }
+                onError(response);
+            }
+        });
+    }
+};
+
+},{"backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/templates/addresses/view-all-row.hbs":[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var Handlebars = require('hbsfy/runtime');
 module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -18206,7 +19633,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   
 
 
-  return "<ol class=\"breadcrumb\">\n    <li><a href=\"#\">Home</a></li>\n    <li class=\"active\">Addresses</li>\n</ol>\n\n<div class=\"panel panel-default\">\n\n    <table class=\"table table-striped\">\n        <thead>\n        <tr>\n            <th>ID</th>\n            <th>Title</th>\n            <th>Street</th>\n            <th>City</th>\n        </tr>\n        </thead>\n        <tbody class=\"addresses-data\">\n        </tbody>\n    </table>\n</div>\n\n<ul class=\"pagination\"><li class=\"active\"><a href=\"#\">PREV</a></li><li><a href=\"#\">1</a></li><li class=\"active\"><a href=\"#\">2</a></li><li><a href=\"#\">3</a></li><li><a href=\"#\">4</a></li><li class=\"disabled\"><a href=\"#\">5</a></li><li class=\"active\"><a href=\"#\">NEXT</a></li></ul>";
+  return "<ol class=\"breadcrumb well well-sm\">\n    <li><a href=\"#\">Home</a></li>\n    <li class=\"active\">Addresses</li>\n</ol>\n\n<div class=\"panel panel-default\">\n    <table class=\"table table-striped\">\n        <thead class=\"bg-primary\">\n            <tr>\n                <th>ID</th>\n                <th>Title</th>\n                <th>Street</th>\n                <th>City</th>\n            </tr>\n        </thead>\n        <tbody class=\"addresses-data\"></tbody>\n    </table>\n</div>\n\n<nav>\n    <ul class=\"pagination \">\n        <li>\n            <a href=\"#\" aria-label=\"Previous\">\n                <span aria-hidden=\"true\">&laquo;</span>\n            </a>\n        </li>\n        <li class=\"active\"><a href=\"#\">1</a></li>\n        <li><a href=\"#\">2</a></li>\n        <li><a href=\"#\">3</a></li>\n        <li><a href=\"#\">4</a></li>\n        <li><a href=\"#\">5</a></li>\n        <li>\n            <a href=\"#\" aria-label=\"Next\">\n                <span aria-hidden=\"true\">&raquo;</span>\n            </a>\n        </li>\n    </ul>\n</nav>";
   });
 
 },{"hbsfy/runtime":"/Users/MM/Documents/Code/badmin/node_modules/hbsfy/runtime.js"}],"/Users/MM/Documents/Code/badmin/src/js/templates/addresses/view-single.hbs":[function(require,module,exports){
@@ -18215,34 +19642,55 @@ var Handlebars = require('hbsfy/runtime');
 module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  var buffer = "", stack1, helper, functionType="function", escapeExpression=this.escapeExpression;
+  var buffer = "", stack1, helper, functionType="function", escapeExpression=this.escapeExpression, self=this;
 
+function program1(depth0,data) {
+  
+  
+  return "Create Address";
+  }
 
-  buffer += "<ol class=\"breadcrumb\">\n    <li><a href=\"#\">Home</a></li>\n    <li><a href=\"#addresses\">Addresses</a></li>\n    <li class=\"active\">Create Address</li>\n</ol>\n\n<form id=\"address-form\" class=\"ink-form\">\n    <input type=\"hidden\" name=\"create\" value=\"";
+function program3(depth0,data) {
+  
+  var stack1, helper;
+  if (helper = helpers.title) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.title); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  return escapeExpression(stack1);
+  }
+
+function program5(depth0,data) {
+  
+  
+  return "Edit Address";
+  }
+
+  buffer += "<ol class=\"breadcrumb well well-sm\">\n    <li><a href=\"#\">Home</a></li>\n    <li><a href=\"#addresses\">Addresses</a></li>\n    <li class=\"active\">";
+  stack1 = helpers['if'].call(depth0, (depth0 && depth0.create), {hash:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "</li>\n</ol>\n\n<div class=\"panel panel-default panel-primary\">\n    <div class=\"panel-heading\">\n        <h3 class=\"panel-title\">\n            ";
+  stack1 = helpers['if'].call(depth0, (depth0 && depth0.create), {hash:{},inverse:self.program(5, program5, data),fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\n            (FYI I only created 1 model fixture, so the same data will show up here)\n        </h3>\n    </div>\n    <div class=\"panel-body\">\n        <form id=\"address-form\" class=\"badmin-form \">\n            <input type=\"hidden\" name=\"create\" value=\"";
   if (helper = helpers.create) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.create); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "\" />\n    <div class=\"column-group gutters\">\n        <label for=\"id\" class=\"all-10\">City ID</label>\n        <div class=\"control all-90\">\n            <b>";
+    + "\" />\n\n            <div class=\"input-group\">\n                <span for=\"id\" class=\"badmin-label input-group-addon\">City ID</span>\n                <input disabled type=\"text\" class=\"form-control\" value=\"";
   if (helper = helpers.id) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.id); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "</b>\n        </div>\n    </div>\n    <div class=\"column-group gutters\">\n        <label for=\"title\" class=\"all-10\">Title</label>\n        <div class=\"control all-90\">\n            <input type=\"text\" name=\"title\" id=\"title\" class=\"all-50\" value=\"";
+    + "\" />\n            </div>\n            <div class=\"input-group\">\n                <span for=\"title\" class=\"badmin-label input-group-addon\">Title</span>\n                <input type=\"text\" name=\"title\" id=\"title\" class=\"form-control\" value=\"";
   if (helper = helpers.title) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.title); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "\" placeholder=\"e.g. Dog Bar\"/>\n        </div>\n    </div>\n    <div class=\"column-group gutters\">\n        <label for=\"street\" class=\"all-10\">No. & Street</label>\n        <div class=\"control all-90\">\n            <input type=\"text\" name=\"street\" id=\"street\" class=\"all-50\" value=\"";
+    + "\" placeholder=\"e.g. Dog Bar\"/>\n            </div>\n            <div class=\"input-group\">\n                <span for=\"street\" class=\"badmin-label input-group-addon\">No. & Street</span>\n                <input type=\"text\" name=\"street\" id=\"street\" class=\"form-control\" value=\"";
   if (helper = helpers.street) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.street); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "\" placeholder=\"e.g. 33 Yellow Street\" />\n        </div>\n    </div>\n    <div class=\"column-group gutters\">\n        <label for=\"zip\" class=\"all-10\">Zip</label>\n        <div class=\"control all-90\">\n            <input type=\"text\" name=\"zip\" class=\"all-50\" id=\"zip\" value=\"";
+    + "\" placeholder=\"e.g. 33 Yellow Street\" />\n            </div>\n            <div class=\"input-group\">\n                <span for=\"zip\" class=\"badmin-label input-group-addon\">Zip</span>\n                <input type=\"text\" name=\"zip\" class=\"form-control\" id=\"zip\" value=\"";
   if (helper = helpers.zip) { stack1 = helper.call(depth0, {hash:{},data:data}); }
   else { helper = (depth0 && depth0.zip); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
   buffer += escapeExpression(stack1)
-    + "\">\n        </div>\n    </div>\n    <div class=\"column-group gutters\">\n        <label for=\"city\" class=\"all-10\">City / Neighborhood</label>\n        <div class=\"control all-90\">\n            <input type=\"text\" name=\"city\" id=\"city\" class=\"all-50\" value=\"";
-  if (helper = helpers.city) { stack1 = helper.call(depth0, {hash:{},data:data}); }
-  else { helper = (depth0 && depth0.city); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
-  buffer += escapeExpression(stack1)
-    + "\" placeholder=\"e.g. West LA\" />\n        </div>\n    </div>\n    <div class=\"column-group gutters\">\n        <label for=\"parent_city_id\" class=\"all-10\">Parent City</label>\n        <div class=\"control all-90\">\n            <select name=\"parent_city_id\" id=\"parent_city_id\"></select>\n        </div>\n    </div>\n\n    <hr/>\n    <span class=\"ink-button orange right-space form-save\">Save</span>\n    <span class=\"ink-button white form-cancel\">Cancel</span>\n</form>\n\n\n\n";
+    + "\">\n            </div>\n            <div class=\"input-group\">\n                <span for=\"parent_city_id\" class=\"badmin-label input-group-addon\">City</span>\n\n                <div>\n                    <button type=\"button\" class=\"btn btn-default dropdown-toggle\" data-toggle=\"dropdown\" aria-expanded=\"false\">Action <span class=\"caret\"></span></button>\n                    <ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\">\n                        <li><a href=\"#\">Los Angeles</a></li>\n                        <li><a href=\"#\">New York</a></li>\n                        <li><a href=\"#\">San Francisco</a></li>\n                    </ul>\n                </div>\n            </div>\n        </form>\n    </div>\n    <div class=\"panel-footer\">\n        <button class=\"btn btn-success form-save\">Save</button>\n        <button class=\"btn btn-warning form-cancel\">Cancel</button>\n    </div>\n</div>\n\n\n\n\n\n";
   return buffer;
   });
 
@@ -18284,19 +19732,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   
 
 
-  return "<ol class=\"breadcrumb\">\n    <li><a href=\"#\">Home</a></li>\n    <li class=\"active\">Dashboard</li>\n</ol>\n<div class=\"row\">\n    <div class=\"col-sm-12\">\n        <div class=\"well test-notifications\">\n            <button type=\"button\" class=\"btn  btn-sm disabled\">Click on my friends to the right</button>\n\n            <button type=\"button\" class=\"btn btn-warning btn-sm\" data-notif=\"warning\"\n                    data-msg=\"You are the best programmer in the world.\">Warning</button>\n            <button type=\"button\" class=\"btn btn-info btn-sm\" data-notif=\"info\"\n                    data-msg=\"For your information, this is a recording.\">Info</button>\n            <button type=\"button\" class=\"btn btn-success btn-sm\" data-notif=\"success\"\n                    data-msg=\"Its your birthday!\">Success</button>\n            <button type=\"button\" class=\"btn btn-danger btn-sm\" data-notif=\"danger\"\n                    data-msg=\"Oh snap! A failure is an opportunity in disguise.\">Danger</button>\n        </div>\n    </div>\n</div>\n<div class=\"row\">\n    <div class=\"col-sm-6\">\n        <div class=\"panel panel-default\">\n            <div class=\"panel-heading\"><h3 class=\"panel-title\">Documentation Links</h3></div>\n            <ul class=\"list-group\">\n                <li class=\"list-group-item\"><span class=\"badge\">GitHub</span><a href=\"https://github.com/mmukhin/badmin\">https://github.com/mmukhin/badmin</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">node.js</span><a href=\"http://nodejs.org/download/\">http://nodejs.org/download/</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">npm</span><a href=\"https://docs.npmjs.com/\">https://docs.npmjs.com/</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">Gulp</span><a href=\"https://github.com/gulpjs/gulp\">https://github.com/gulpjs/gulp</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">Backbone.js</span><a href=\"http://backbonejs.org/\">http://backbonejs.org/</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">Marionette.js</span><a href=\"http://marionettejs.com/docs/current/\">http://marionettejs.com/docs/current/</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">Bootstrap</span><a href=\"http://getbootstrap.com/getting-started/\">http://getbootstrap.com/getting-started/</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">Author</span><a href=\"http://psitsmike.com/\">http://psitsmike.com/</a></li>\n            </ul>\n        </div>\n    </div>\n    <div class=\"col-sm-6\">\n        <div class=\"panel panel-default\">\n            <div class=\"panel-heading\"><h3 class=\"panel-title\">Up in the Cloud</h3></div>\n            <ul class=\"list-group\">\n                <li class=\"list-group-item\">\n                    <h6>Memory</h6>\n                    <div class=\"progress\">\n                        <div class=\"progress-bar progress-bar-warning\" role=\"progressbar\" aria-valuenow=\"60\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 60%;\">\n                            60%\n                        </div>\n                    </div>\n                </li>\n                <li class=\"list-group-item\">\n                    <h6>CPU</h6>\n                    <div class=\"progress\">\n                        <div class=\"progress-bar progress-bar-danger\" role=\"progressbar\" aria-valuenow=\"90\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 90%;\">\n                            90%\n                        </div>\n                    </div>\n                </li>\n                <li class=\"list-group-item\">\n                    <h6>Disk</h6>\n                    <div class=\"progress\">\n                        <div class=\"progress-bar progress-bar-info\" role=\"progressbar\" aria-valuenow=\"10\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 10%;\">\n                            10%\n                        </div>\n                    </div>\n                </li>\n            </ul>\n        </div>\n    </div>\n</div>";
-  });
-
-},{"hbsfy/runtime":"/Users/MM/Documents/Code/badmin/node_modules/hbsfy/runtime.js"}],"/Users/MM/Documents/Code/badmin/src/js/templates/login/login.hbs":[function(require,module,exports){
-// hbsfy compiled Handlebars template
-var Handlebars = require('hbsfy/runtime');
-module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
-  this.compilerInfo = [4,'>= 1.0.0'];
-helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  
-
-
-  return "<br/>\n<h4 class=\"sans page-title\"><strong>VERYMPORTANT<small>admin</small></strong></h4>\n<form id=\"login-form\" class=\"ink-form\">\n    <div class=\"column-group gutters\">\n        <label for=\"username\" class=\"all-10\">Username</label>\n        <div class=\"control all-90\">\n            <input type=\"text\" name=\"username\" id=\"username\" class=\"all-20\" />\n        </div>\n    </div>\n    <div class=\"column-group gutters\">\n        <label for=\"password\" class=\"all-10\">Password</label>\n        <div class=\"control all-90\">\n            <input type=\"password\" name=\"password\" id=\"password\" class=\"all-20\" />\n        </div>\n    </div>\n\n    <span class=\"ink-button orange right-space form-submit-login\" style=\"margin:10px 0 0;\">Login</span>\n</form>\n\n\n\n";
+  return "<ol class=\"breadcrumb well well-sm\">\n    <li><a href=\"#\">Home</a></li>\n    <li class=\"active\">Dashboard</li>\n</ol>\n<div class=\"row\">\n    <div class=\"col-sm-12\">\n        <div class=\"panel panel-default panel-success\">\n            <div class=\"panel-heading\"><h3 class=\"panel-title\">Click buttons for Notifier</h3></div>\n            <div class=\"panel-body test-notifications\">\n                <button type=\"button\" class=\"btn btn-warning btn-sm\" data-notif=\"warning\"\n                        data-msg=\"You are the best programmer in the world.\">Warning</button>\n                <button type=\"button\" class=\"btn btn-info btn-sm\" data-notif=\"info\"\n                        data-msg=\"For your information, this is a recording.\">Info</button>\n                <button type=\"button\" class=\"btn btn-success btn-sm\" data-notif=\"success\"\n                        data-msg=\"Its your birthday!\">Success</button>\n                <button type=\"button\" class=\"btn btn-danger btn-sm\" data-notif=\"danger\"\n                        data-msg=\"Oh snap! A failure is an opportunity in disguise.\">Danger</button>\n            </div>\n        </div>\n    </div>\n</div>\n<div class=\"row\">\n    <div class=\"col-sm-6\">\n        <div class=\"panel panel-default panel-primary\">\n            <div class=\"panel-heading\"><h3 class=\"panel-title\">Documentation Links</h3></div>\n            <ul class=\"list-group\">\n                <li class=\"list-group-item\"><span class=\"badge\">GitHub</span><a href=\"https://github.com/mmukhin/badmin\">https://github.com/mmukhin/badmin</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">node.js</span><a href=\"http://nodejs.org/download/\">http://nodejs.org/download/</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">npm</span><a href=\"https://docs.npmjs.com/\">https://docs.npmjs.com/</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">Gulp</span><a href=\"https://github.com/gulpjs/gulp\">https://github.com/gulpjs/gulp</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">Backbone.js</span><a href=\"http://backbonejs.org/\">http://backbonejs.org/</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">Marionette.js</span><a href=\"http://marionettejs.com/docs/current/\">http://marionettejs.com/docs/current/</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">Bootstrap</span><a href=\"http://getbootstrap.com/getting-started/\">http://getbootstrap.com/getting-started/</a></li>\n                <li class=\"list-group-item\"><span class=\"badge\">Author</span><a href=\"http://psitsmike.com/\">http://psitsmike.com/</a></li>\n            </ul>\n        </div>\n    </div>\n    <div class=\"col-sm-6\">\n        <div class=\"panel panel-default panel-danger\">\n            <div class=\"panel-heading\"><h3 class=\"panel-title\">Up in the Cloud</h3></div>\n            <ul class=\"list-group\">\n                <li class=\"list-group-item\">\n                    <h6>Memory</h6>\n                    <div class=\"progress\">\n                        <div class=\"progress-bar progress-bar-warning\" role=\"progressbar\" aria-valuenow=\"60\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 60%;\">\n                            60%\n                        </div>\n                    </div>\n                </li>\n                <li class=\"list-group-item\">\n                    <h6>CPU</h6>\n                    <div class=\"progress\">\n                        <div class=\"progress-bar progress-bar-danger\" role=\"progressbar\" aria-valuenow=\"90\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 90%;\">\n                            90%\n                        </div>\n                    </div>\n                </li>\n                <li class=\"list-group-item\">\n                    <h6>Disk</h6>\n                    <div class=\"progress\">\n                        <div class=\"progress-bar progress-bar-info\" role=\"progressbar\" aria-valuenow=\"10\" aria-valuemin=\"0\" aria-valuemax=\"100\" style=\"width: 10%;\">\n                            10%\n                        </div>\n                    </div>\n                </li>\n            </ul>\n        </div>\n    </div>\n</div>";
   });
 
 },{"hbsfy/runtime":"/Users/MM/Documents/Code/badmin/node_modules/hbsfy/runtime.js"}],"/Users/MM/Documents/Code/badmin/src/js/templates/nav/nav.hbs":[function(require,module,exports){
@@ -18308,7 +19744,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   
 
 
-  return "<nav class=\"navbar navbar-default navbar-fixed-top\">\n    <div class=\"container-fluid\">\n        <div class=\"navbar-header\">\n            <button class=\"navbar-toggle\"\n                    data-target=\"#bs-example-navbar-collapse-1\"\n                    data-toggle=\"collapse\"\n                    type=\"button\">\n                <span class=\"sr-only\">Toggle navigation</span>\n                <span class=\"icon-bar\"></span> <span class=\"icon-bar\"></span>\n                <span class=\"icon-bar\"></span>\n            </button>\n            <a class=\"navbar-brand\" href=\"#\">\n                <strong>BADMIN</strong>\n            </a>\n        </div>\n\n        <div class=\"collapse navbar-collapse \" id=\"bs-example-navbar-collapse-1\">\n\n            <ul class=\"nav navbar-nav\">\n                <li class=\"dropdown\">\n                    <a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href=\"#addresses\">\n                        Addresses<b class=\"caret\"></b>\n                    </a>\n                    <ul class=\"dropdown-menu\">\n                        <li><a href=\"#addresses\">View</a></li>\n                        <li><a href=\"#addresses/create\">Create</a></li>\n                    </ul>\n                </li>\n                <li><a href=\"#\">Simple Link</a></li>\n            </ul>\n            <ul id=\"region-user\" class=\" navbar-nav navbar-right\"></ul>\n        </div>\n    </div>\n</nav>";
+  return "<nav class=\"navbar navbar-default navbar-fixed-top\">\n    <div class=\"container-fluid\">\n        <div class=\"navbar-header\">\n            <button class=\"navbar-toggle\"\n                    data-target=\"#bs-example-navbar-collapse-1\"\n                    data-toggle=\"collapse\"\n                    type=\"button\">\n                <span class=\"sr-only\">Toggle navigation</span>\n                <span class=\"icon-bar\"></span> <span class=\"icon-bar\"></span>\n                <span class=\"icon-bar\"></span>\n            </button>\n            <a class=\"navbar-brand\" href=\"#\">\n                <strong>BADMIN</strong>\n            </a>\n        </div>\n\n        <div class=\"collapse navbar-collapse \" id=\"bs-example-navbar-collapse-1\">\n\n            <ul id=\"main-nav\" class=\"nav navbar-nav\">\n                <li id=\"nav-addresses\" class=\"dropdown\">\n                    <a class=\"dropdown-toggle\" data-toggle=\"dropdown\" href=\"#addresses\">\n                        Addresses<b class=\"caret\"></b>\n                    </a>\n                    <ul class=\"dropdown-menu\">\n                        <li><a href=\"#addresses\">View</a></li>\n                        <li><a href=\"#addresses/create\">Create</a></li>\n                    </ul>\n                </li>\n                <li><a href=\"#\">Simple Link</a></li>\n            </ul>\n            <ul id=\"region-user\" class=\" navbar-nav navbar-right\"></ul>\n        </div>\n    </div>\n</nav>";
   });
 
 },{"hbsfy/runtime":"/Users/MM/Documents/Code/badmin/node_modules/hbsfy/runtime.js"}],"/Users/MM/Documents/Code/badmin/src/js/templates/users/user-menu.hbs":[function(require,module,exports){
@@ -18317,10 +19753,19 @@ var Handlebars = require('hbsfy/runtime');
 module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
-  
+  var buffer = "", stack1, helper, functionType="function", escapeExpression=this.escapeExpression;
 
 
-  return "<button type=\"button\" class=\"btn btn-warning navbar-btn\">Sign in</button>\n<span class=\"badge badge-danger\" style=\"margin:0 10px\">or</span>\n<div class=\"btn-group\">\n    <button type=\"button\" class=\"btn btn-success dropdown-toggle  navbar-btn\" data-toggle=\"dropdown\">\n        <img src=\"/images/pup.png\" class=\"img-circle logged-in-user-image\" />\n        <strong>bobmarley</strong>\n        <span class=\"caret\"></span>\n    </button>\n\n    <ul class=\"dropdown-menu\" role=\"menu\">\n        <li><a href=\"#\">Edit Profile</a></li>\n        <li><a href=\"#\">Support</a></li>\n        <li class=\"divider\"></li>\n        <li><a href=\"#\" class=\"has-warning\">Logout</a></li>\n    </ul>\n</div>\n";
+  buffer += "<div class=\"btn-group\">\n    <button type=\"button\" class=\"btn btn-success dropdown-toggle  navbar-btn\" data-toggle=\"dropdown\">\n        <img src=\"";
+  if (helper = helpers.image) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.image); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "\" class=\"img-circle logged-in-user-image\" />\n        <strong>";
+  if (helper = helpers.username) { stack1 = helper.call(depth0, {hash:{},data:data}); }
+  else { helper = (depth0 && depth0.username); stack1 = typeof helper === functionType ? helper.call(depth0, {hash:{},data:data}) : helper; }
+  buffer += escapeExpression(stack1)
+    + "</strong>\n        <span class=\"caret\"></span>\n    </button>\n\n    <ul class=\"dropdown-menu\" role=\"menu\">\n        <li><a href=\"#\">Edit Profile</a></li>\n        <li><a href=\"#\">Support</a></li>\n        <li class=\"divider\"></li>\n        <li><a href=\"#\">Logout</a></li>\n    </ul>\n</div>\n";
+  return buffer;
   });
 
 },{"hbsfy/runtime":"/Users/MM/Documents/Code/badmin/node_modules/hbsfy/runtime.js"}],"/Users/MM/Documents/Code/badmin/src/js/templates/view-manager.hbs":[function(require,module,exports){
@@ -18353,17 +19798,7 @@ var Backbone = require('backbone');
 
 module.exports = Backbone.Marionette.ItemView.extend({
     tagName: "tr",
-    className: "alternating grey",
-    template: require('../../templates/addresses/view-all-row.hbs'),
-    events: {
-        //'click': 'onListenClick'
-    },
-    initialize: function(){
-        //_.bindAll(this, "onListenClick");
-    },
-    onListenClick: function (e) {
-        e.preventDefault();
-    }
+    template: require('../../templates/addresses/view-all-row.hbs')
 });
 },{"../../templates/addresses/view-all-row.hbs":"/Users/MM/Documents/Code/badmin/src/js/templates/addresses/view-all-row.hbs","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js"}],"/Users/MM/Documents/Code/badmin/src/js/views/addresses/view-all.js":[function(require,module,exports){
 'use strict';
@@ -18373,14 +19808,9 @@ var AddressesCollection = require('../../collections/addresses.js');
 var AddressItemView = require('../addresses/view-all-row.js');
 
 module.exports = Backbone.Marionette.CompositeView.extend({
-    tagName: 'div',
-    className: 'inline-block relative',
     template: require('../../templates/addresses/view-all.hbs'),
     childView: AddressItemView,
     childViewContainer: '.addresses-data',
-    events: {
-        "click .dd-active-label": "clickActive"
-    },
     initialize: function () {
         var self = this;
 
@@ -18398,6 +19828,7 @@ module.exports = Backbone.Marionette.CompositeView.extend({
 'use strict';
 
 var Backbone = require('backbone');
+var $ = require('jquery');
 var AddressModel = require('../../models/address.js');
 
 module.exports = Backbone.Marionette.ItemView.extend({
@@ -18462,9 +19893,11 @@ module.exports = Backbone.Marionette.ItemView.extend({
             })
             .error( function(response){
                 TheApp.app.notifier.addMessage({
-                    'type': 'error',
-                    'message': response.responseJSON.message
+                    'type': 'danger',
+                    //'message': response.responseJSON.message
+                    'message': 'I did not create a create.json fixture :)'
                 });
+                self.render().animateFetchStop();
             });
     },
     cancelSave: function() {
@@ -18481,7 +19914,7 @@ module.exports = Backbone.Marionette.ItemView.extend({
         return this;
     }
 });
-},{"../../models/address.js":"/Users/MM/Documents/Code/badmin/src/js/models/address.js","../../templates/addresses/view-single.hbs":"/Users/MM/Documents/Code/badmin/src/js/templates/addresses/view-single.hbs","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js"}],"/Users/MM/Documents/Code/badmin/src/js/views/components/notifier/view-all-row.js":[function(require,module,exports){
+},{"../../models/address.js":"/Users/MM/Documents/Code/badmin/src/js/models/address.js","../../templates/addresses/view-single.hbs":"/Users/MM/Documents/Code/badmin/src/js/templates/addresses/view-single.hbs","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js"}],"/Users/MM/Documents/Code/badmin/src/js/views/components/notifier/view-all-row.js":[function(require,module,exports){
 'use strict';
 
 var Backbone = require('backbone');
@@ -18544,55 +19977,16 @@ module.exports = Backbone.Marionette.View.extend({
         'click .test-notifications .btn': 'clickNotification'
     },
     clickNotification: function(e) {
-
         TheApp.app.notifier.addMessage({
             'type': e.currentTarget.dataset.notif,
             'message': e.currentTarget.dataset.msg
         });
     },
     render: function() {
-
-
         this.$el.html(this.template());
     }
 });
-},{"../../templates/home/home.hbs":"/Users/MM/Documents/Code/badmin/src/js/templates/home/home.hbs","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js"}],"/Users/MM/Documents/Code/badmin/src/js/views/login/view.js":[function(require,module,exports){
-'use strict';
-
-var _ = require('underscore');
-var Backbone = require('backbone');
-var $ = require('jquery');
-Backbone.$ = $;
-
-
-module.exports = Backbone.Marionette.View.extend({
-    el: '#login',
-    className: 'clearfix horizontal-space',
-    template: require('../../templates/login/login.hbs'),
-    events: {
-        'click .form-submit-login': 'submitLogin',
-        'keyup #username': 'keyupLogin',
-        'keyup #password': 'keyupLogin'
-    },
-    initialize: function(){
-
-    },
-    render: function(){
-        this.$el.addClass(this.className).html(this.template());
-        return this;
-    },
-    submitLogin: function(e) {
-        e.preventDefault();
-        TheApp.app.user.tryLogin(this.$('#username').val(), this.$('#password').val());
-    },
-    keyupLogin: function(e) {
-        e.preventDefault();
-        if (e.keyCode == 13) {
-            this.submitLogin(e);
-        }
-    }
-});
-},{"../../templates/login/login.hbs":"/Users/MM/Documents/Code/badmin/src/js/templates/login/login.hbs","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/backbone/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/views/nav/view.js":[function(require,module,exports){
+},{"../../templates/home/home.hbs":"/Users/MM/Documents/Code/badmin/src/js/templates/home/home.hbs","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js"}],"/Users/MM/Documents/Code/badmin/src/js/views/nav/view.js":[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
@@ -18602,51 +19996,32 @@ var UserMenuView = require('../users/user-menu.js');
 
 module.exports = Marionette.LayoutView.extend({
     id: 'nav',
-    className: 'bottom-space',
-
     template: require('../../templates/nav/nav.hbs'),
     regions: {
         userView: '#region-user'
     },
     render: function(){
-
         this.$el.html(this.template());
-
         this.userView.show( new UserMenuView({model: TheApp.app.user}) );
-
         return this;
     }
 });
-},{"../../templates/nav/nav.hbs":"/Users/MM/Documents/Code/badmin/src/js/templates/nav/nav.hbs","../users/user-menu.js":"/Users/MM/Documents/Code/badmin/src/js/views/users/user-menu.js","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/backbone/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/views/users/user-menu.js":[function(require,module,exports){
+},{"../../templates/nav/nav.hbs":"/Users/MM/Documents/Code/badmin/src/js/templates/nav/nav.hbs","../users/user-menu.js":"/Users/MM/Documents/Code/badmin/src/js/views/users/user-menu.js","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/underscore/underscore.js"}],"/Users/MM/Documents/Code/badmin/src/js/views/users/user-menu.js":[function(require,module,exports){
 'use strict';
 
 var Backbone = require('backbone');
-var $ = require('jquery');
-Backbone.$ = $;
-var NotificationModel = require('../../models/notification.js');
-
 
 module.exports = Backbone.Marionette.View.extend({
     template: require('../../templates/users/user-menu.hbs'),
-    events: {
-        'click #logout': 'submitLogout'
-    },
-    initialize: function(){
-
-    },
     render: function() {
         this.$el.html(this.template(this.model.toJSON()));
         return this;
-    },
-    submitLogout: function() {
-        TheApp.app.user.logout();
     }
 });
-},{"../../models/notification.js":"/Users/MM/Documents/Code/badmin/src/js/models/notification.js","../../templates/users/user-menu.hbs":"/Users/MM/Documents/Code/badmin/src/js/templates/users/user-menu.hbs","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js"}],"/Users/MM/Documents/Code/badmin/src/js/views/view-manager.js":[function(require,module,exports){
+},{"../../templates/users/user-menu.hbs":"/Users/MM/Documents/Code/badmin/src/js/templates/users/user-menu.hbs","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js"}],"/Users/MM/Documents/Code/badmin/src/js/views/view-manager.js":[function(require,module,exports){
 'use strict';
 
 var _ = require('underscore');
-var $ = require('jquery');
 var Backbone = require('backbone');
 var Marionette = require('backbone.marionette');
 var NavView = require('./nav/view.js');
@@ -18674,4 +20049,4 @@ module.exports = Marionette.LayoutView.extend({
         return this;
     }
 });
-},{"../templates/view-manager.hbs":"/Users/MM/Documents/Code/badmin/src/js/templates/view-manager.hbs","./footer/view.js":"/Users/MM/Documents/Code/badmin/src/js/views/footer/view.js","./nav/view.js":"/Users/MM/Documents/Code/badmin/src/js/views/nav/view.js","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","jquery":"/Users/MM/Documents/Code/badmin/node_modules/jquery/dist/jquery.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/backbone/node_modules/underscore/underscore.js"}]},{},["./src/js/app.js"]);
+},{"../templates/view-manager.hbs":"/Users/MM/Documents/Code/badmin/src/js/templates/view-manager.hbs","./footer/view.js":"/Users/MM/Documents/Code/badmin/src/js/views/footer/view.js","./nav/view.js":"/Users/MM/Documents/Code/badmin/src/js/views/nav/view.js","backbone":"/Users/MM/Documents/Code/badmin/node_modules/backbone/backbone.js","backbone.marionette":"/Users/MM/Documents/Code/badmin/node_modules/backbone.marionette/lib/core/backbone.marionette.js","underscore":"/Users/MM/Documents/Code/badmin/node_modules/underscore/underscore.js"}]},{},["./src/js/app.js"]);
