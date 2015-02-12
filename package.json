@@ -1,6 +1,6 @@
 {
     "name": "badmin",
-    "version": "0.1",
+    "version": "0.1.0",
     "description": "Marionette.js & Backbone.js admin panel dashboard. Demo: http://mmukhin.github.io/badmin",
     "keywords": ["badmin", "badmin panel", "marionette.js admin", "marionette admin", "backbone.js admin", "backbone dashboard", "marionette dashboard"],
     "author": {
